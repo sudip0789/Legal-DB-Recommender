@@ -1,0 +1,700 @@
+{
+  "_meta": {
+    "source": "Stanford Robert Crown Law Library - Legal Databases (public website)",
+    "standalone_count": 21,
+    "platform_count": 14,
+    "ai_tool_count": 4,
+    "access_points": 36,
+    "notes": [
+      "Catalog mirrors the public SLS Legal Databases page, not the internal Airtable.",
+      "Internal-only items (Research Paper Series, RIA Checkpoint) removed.",
+      "Elgar entries use the SLS website set, not the Airtable set.",
+      "Single-child vendor buckets (Bloomberg, Elsevier) flattened into standalone.",
+      "is_routing_bucket=true: platform has no own description; recommend at child level.",
+      "ALWAYS display the canonical name. Use 'aliases' only to RECOGNIZE old/alternate names in user input; never show an old name in a suggestion. If the user asks about an old name, tell them it is now called the canonical name and give the link."
+    ]
+  },
+  "aliases": {
+    "American Indian Law Collection": {
+      "canonical": "Indigenous Peoples of the Americas: History, Culture & Law",
+      "is_rename": true
+    },
+    "Cheetah": {
+      "canonical": "VitalLaw",
+      "is_rename": true
+    },
+    "Lexis Securities Mosaic": {
+      "canonical": "Intelligize",
+      "is_rename": true
+    },
+    "Legislative Insight": {
+      "canonical": "ProQuest Legislative Insight",
+      "is_rename": false
+    },
+    "Regulatory Insight": {
+      "canonical": "ProQuest Regulatory Insight",
+      "is_rename": false
+    },
+    "Thomson Reuters ProView": {
+      "canonical": "ProView",
+      "is_rename": false
+    },
+    "OnLAW": {
+      "canonical": "CEB OnLAW",
+      "is_rename": false
+    },
+    "LexisNexis CourtLink": {
+      "canonical": "CourtLink",
+      "is_rename": false
+    },
+    "Rhetoric": {
+      "canonical": "CICERO (Rhetoric)",
+      "is_rename": false
+    }
+  },
+  "standalone_databases": [
+    {
+      "name": "BankruptcyData",
+      "description": "BankruptcyData provides case information in near-real time for all corporate bankruptcies in the 94 U.S. Bankruptcy Courts, plus almost 40 years of historical records. The database includes financials, plans of reorganization, disclosure statements, debtor-in-possession financing, professional retention data, 363/asset sale motions, key employee incentive plans, monthly operating reports, claim transfer activity, securities and security pricing data, committee information and more.",
+      "link": "https://app-bankruptcydata-com.ezproxy.law.stanford.edu/home"
+    },
+    {
+      "name": "Bloomberg Law",
+      "description": "Bloomberg Law (BLAW) is a resource for primary and secondary legal content, federal and state court dockets, company and market information, news, and BNA legal content. Conducting federal docket research on BLAW is strongly encouraged; it should have the same information as PACER and offers extensive search options. Please review our research guide on Docket Research for more information. Bloomberg Law has imposed a limit to annual usage of their dockets service. Please contact reference@law.stanford.edu with questions. BLAW also offers a rich set of precedent documents for transactional law research. Please contact Reference for more information.",
+      "link": "http://www.bloomberglaw.com/",
+      "_was_under": "Bloomberg"
+    },
+    {
+      "name": "CEB OnLAW",
+      "description": "Continuing Education of the Bar (CEB) provides electronic access to its California practice guides through OnLAW. CEB focuses on practice areas including business law, criminal law, employment law, estate planning law, family law, litigation, and real property law. It also provides links to California cases and codes, as well as U.S. Supreme Court cases, that are cited in the practice guides. Additionally, CEB provides attorney-drafted forms with clauses accompanied by explanations and directions.",
+      "link": "https://ezproxy.law.stanford.edu/login?url=https://onlaw.ceb.com"
+    },
+    {
+      "name": "Competition Policy International",
+      "description": "Competition Policy International (CPI) provides resources and continuing education for the global antitrust and competition policy community. Users of this resource can access two e-journals published by CPI as well as columns, blogs, and supplemental online content. Competition Policy International is a peer-reviewed academic journal, published biannually, and is one of the leading antitrust journals in the world. The Antitrust Chronicle is an online-only bimonthly magazine that produces papers on topical competitive policy topics. CPI Briefing Rooms are thematic platforms moderated by antitrust experts to share views and spread knowledge within the antitrust community. The community can also help position specific topics such as financial services, online platforms, telecommunications or any other subject among regulators, judges and practitioners. They include academic papers, judicial and administrative rulings, and reports.",
+      "link": "https://ezproxy.law.stanford.edu/login?url=https://www.pymnts.com/cpi"
+    },
+    {
+      "name": "Embase",
+      "description": "Embase is a biomedical and pharmacological abstracting and indexing database of published literature. Embase, produced by Elsevier, contains over 32 million records from over 8,500 currently published journals from 1947 to the present. Additionally, it includes some older articles dating back to 1907. Through its international coverage, daily updates, and drug indexing with EMTREE, Embase enables tracking and retrieval of drug information in the published literature. You can search via the PICO form (Patient, Intervention, Comparison/Control, Outcome); PV Wizard (Drug name, Alternative drug names, Adverse drug reactions, Special conditions, and Human limits); Drug (including safety searches and pharmacovigilance work); Disease; Device (including adverse event information and other manufacturers product); Article (searching through specific areas of an article, such as the title); and Authors (including affiliation and ORCID).",
+      "link": "https://login.laneproxy.stanford.edu/login?url=https://www.embase.com/",
+      "_was_under": "Elsevier"
+    },
+    {
+      "name": "Environmental Law Reporter",
+      "description": "Published by the Environmental Law Institute, the Environmental Law Reporter (ELR) covers recent developments in the courts, Congress, and agencies. ELR contains primary law sources and articles and analysis of environmental law issues. Administrative materials include: federal agency rules and regulations published in the Federal Register, Executive Orders; EPA Environmental Appeals Board decisions; EPA Administrative Law Judge RCRA decisions; recent state agency rules and proposals; and state regulations. Additionally, it includes environmental-related news from around the globe dating back to January 1971.",
+      "link": "https://www-elr-info.ezproxy.law.stanford.edu/"
+    },
+    {
+      "name": "Florida-UCLA-LoPucki Bankruptcy Research Database",
+      "description": "The Bankruptcy Research Database contains data on more than 1,000 large public companies that have filed bankruptcy cases since October 1, 1979 through December 2022, and with reported assets worth $100 million or more, measured in 1980 dollars (about $291 million in current dollars). Coverage includes cases filed under Chapter 7 and Chapter 11 by debtors or creditors. Users can access 5 different data sets, as well as case charts and quantitative data on bankruptcy proceedings within the database.",
+      "link": "https://lopucki.law.ufl.edu/index.php"
+    },
+    {
+      "name": "Gallup Analytics",
+      "description": "Gallup Analytics is a fully searchable database of historical and new survey data from the United States and more than 160 countries around the world. Currently, this includes over 80 years of U.S. national data, nearly a decade of survey results at the city and state level, and more than a decade of global data for individual countries. All data are sorted by demographic categories, including income, education, age and gender, and can be exported to create custom data tables, trends, charts, and scatter plots. Users can access Gallup's U.S. Daily tracking and World Poll data to compare residents' responses region by region and nation by nation to questions on topics such as economic conditions, government and business, health and wellbeing, infrastructure, and education.",
+      "link": "https://analyticscampus-gallup-com.stanford.idm.oclc.org/?ref=Auth"
+    },
+    {
+      "name": "Hotshot",
+      "description": "Hotshot is a digital learning platform designed for lawyers, law students, and scholars that uses short videos and interactive applications to teach a wide range of legal and business topics. New digital content and instructional videos are added to the Hotshot database on a regular basis. Available to all Stanford University students, staff, faculty, and researchers. Users must register with Hotshot prior to access.",
+      "link": "https://www.hotshotlegal.com/"
+    },
+    {
+      "name": "ICLR.4",
+      "description": "The Incorporated Council of Law Reporting for England & Wales (ICLR) is a not-for-profit organization that was established in 1865 as the authorized publisher of the official series of The Law Reports for the Superior and Appellate Courts of England and Wales. ICLR.4 includes the official Law Reports dating back to 1865 as well as the Industrial Cases Reports, the Business Law Reports, the Public and Third Sector Law Reports and the Consolidated Index to leading law reports. Cases can be searched by case name, citation, or catchwords and browsed by legal topic or publication. Legislation can be searched by title, content keywords, or citation and browsed by legal topic or publication. Date coverage varies by publication, with some sources dating back to 1865.",
+      "link": "https://www-iclr-co-uk.ezproxy.law.stanford.edu/"
+    },
+    {
+      "name": "Investment Arbitration Reporter",
+      "description": "Investment Arbitration Reporter (IAReporter) is a news and analysis service tracking international arbitrations between foreign investors and sovereign governments. Coverage focuses on the international law that applies to foreign investment, including international treaties and arbitration claims, and on the investigation of unreported cases and discussion of legal documents and policy developments. The Arbitrator Profiles feature list the known casework of many active investor-state arbitrators, including a brief biographical background and links to recent IAReporter coverage.",
+      "link": "https://ezproxy.law.stanford.edu/login?url=https://www.iareporter.com/"
+    },
+    {
+      "name": "Investor-State LawGuide",
+      "description": "Investor-State LawGuide (ISLG) is a resource for international investment treaty law materials. The collection includes Treaties & Rules (arbitration rules, international treaties and rules, investment treaties, and more) and Dispute Documents (all decisions, awards, procedural orders, pleadings and other dispute documents that are publicly available where the basis of the dispute is an alleged breach of an investment treaty obligation, including all investment treaty NAFTA, ICSID, and ad hoc disputes documents). Search options include Subject Navigator, Terms & Phrases, and Full Text Search, along with Subject, Article, and Jurisprudence Citators. Access to this database is provided to all authorized Stanford Law School users. For access, please click on the blue Login button in the upper right hand corner of the landing page. No password is required for access to this database. If you need additional help, please contact Reference.",
+      "link": "https://ezproxy.law.stanford.edu/login?url=https://app.investorstatelawguide.com/Dashboard"
+    },
+    {
+      "name": "Jus Mundi",
+      "description": "Jus Mundi is a search engine for international law and arbitration. It covers international law and arbitration documents, including investment arbitration, commercial arbitration, public international law, law of the sea, and international trade-law. Jus Mundi has international cases from more than 100 institutions globally, namely, WTO, ICSID, ICC, ICJ, CAS, PCA, ICDR, IUSCT, ITLOS, SCC, LCIA, ICAC, RAC, SIAC, HKIAC, Mixed Claims Commissions, and ad hoc arbitration tribunals established under the UNCITRAL rules.",
+      "link": "https://jusmundi-com.ezproxy.law.stanford.edu/en"
+    },
+    {
+      "name": "Leadership Connect",
+      "description": "Leadership Connect offers access to profiles and contact information of leaders in U.S. government, business, law, and nonprofit sectors. It aggregates data and provides insights into leaders across government agencies, Congress, Courts, Fortune 500 companies, Law & Lobbying firms, Media and nonprofit organizations. Stanford Law School community members can create personalized accounts to save search history, manage favorites, and add notes to track organizational changes, legislation or key contacts.",
+      "link": "https://app.leadershipconnect.io/auth/verify/073107"
+    },
+    {
+      "name": "Lexology Academic",
+      "description": "Provides articles and selected analysis tools from Global Arbitration Review, Global Competition Review, Global Investigations Review, Global Restructuring Review, Intellectual Asset Management, Latin Lawyer, and World Trademark Review. Lexology provides specialized research tools, including links to U.S. and foreign primary law, as well as practitioner publications, news, Panoramic guides to areas of law from foreign jurisdictions, the Scanner regulatory tracking tool, and in-depth reviews of current issues across foreign jurisdictions. The site also Includes an AI-assisted search tool that generates summaries based on content from all Lexology platforms.",
+      "link": "https://academic.lexology.com/"
+    },
+    {
+      "name": "LLMC Digital",
+      "description": "LLMC is a non-profit cooperative that has scanned thousands of titles of interest to researchers in law and history. Coverage includes primary and secondary sources, and collections include U.S. Federal Government, U.S. States and Territories, Canada, Germany, United Kingdom, Other Countries, International Law and Organizations, and Special Focus Collections. Full-text search or browse by collection and title.",
+      "link": "https://ezproxy.law.stanford.edu/login?url=https://discover.llmc.com"
+    },
+    {
+      "name": "PolicyMap",
+      "description": "This database gives users access to data related to demographics, housing, crime, mortgages, health, and jobs. Information comes from public and proprietary sources, and it covers geographies such as school districts, political boundaries, census tract, zip code, city, and state. Users can organize the data into formats suitable for maps, documents, and presentations. PolicyMap also allows users to upload data on top of PolicyMap's collections to create sharable, interactive maps. Layered data reports can accommodate up to three datasets. This program is available to all Stanford University students, staff, faculty, and researchers, but users must first register with PolicyMap prior to access.",
+      "link": "https://www-policymap-com.stanford.idm.oclc.org/newmaps/e/stanford"
+    },
+    {
+      "name": "Prison Legal News",
+      "description": "Prison Legal News (PLN), a project of the non-profit Human Rights Defense Center, is a monthly magazine that reports on criminal justice issues and jail-related civil litigation, with an emphasis on prisoners' rights. Coverage includes all of PLN's articles published since 1990, plus thousands of other articles, case reports, publications and pleadings. Access to PLN is available to Stanford Law School users only. Please contact Reference for more information.",
+      "link": "https://www.prisonlegalnews.org/"
+    },
+    {
+      "name": "TRACfed",
+      "description": "TRACfed (Transactional Records Access Clearinghouse) offers datasets on criminal, civil, and administrative enforcement, including enforcement actions by the IRS and the Social Security Administration, and Immigration-related enforcement actions and detentions. TRACfed also includes datasets on staffing and spending throughout the U.S. federal government, and demographic data at the state, federal district, and county level. TRACfed does not use basic or advanced search tools; rather, users select the datasets and parameters they want to investigate, and TRACfed subsequently generates a report. TRACfed is maintained by Syracuse University and is updated periodically.",
+      "link": "https://tracreports-org.ezproxy.law.stanford.edu/tracfed/"
+    },
+    {
+      "name": "TradeLawGuide",
+      "description": "TradeLawGuide is a database focused exclusively on the law of the World Trade Organization (WTO). It includes annotated agreements, rules of interpretation, sources of WTO jurisprudence, Dispute Settlement Body (DSB) minutes, and secondary sources, including WTO research guides. TradeLawGuide uses basic and advanced search tools throughout the site, as well as a subject-based indexing system, and a citator, which allows users to find cross-references within any of the WTOs 72 agreements and instruments. TradeLawGuide is updated on a continual basis.",
+      "link": "https://www-tradelawguide-com.ezproxy.law.stanford.edu/Home/Welcome"
+    },
+    {
+      "name": "WorldTradeLaw.net",
+      "description": "WorldTradeLaw.net provides current business and trade news, as well as summaries and analysis of all WTO reports and arbitrations, a database of dispute settlement tables and statistics, and a search tool for WTO cases with cross-references, legal texts, and other documents. WorldTradeLaw.net also includes a case index, which users can search alphabetically, by WTO agreement, or by subject. This resource uses basic and some advanced search tools throughout the site. WorldTradeLaw.net is updated on a continual basis.",
+      "link": "https://www-worldtradelaw-net.ezproxy.law.stanford.edu/"
+    }
+  ],
+  "platforms": [
+    {
+      "name": "BRILL",
+      "description": "",
+      "link": "",
+      "is_routing_bucket": true,
+      "children": [
+        {
+          "name": "Basilica Online",
+          "description": "Basilica Online is a fully-searchable, online edition of the seventeen volumes of the Basilica text and its scholia, as edited between 1945 and 1988 by H.J. Scheltema, D. Holwerda, and N. van der Wal. The Basilica is the single-most important source for Byzantine law throughout the period of the Byzantine Empire, and is a major source for Byzantine studies more broadly. It includes a consolidated index. Basilica Online also provides a bibliography that covers consulting, reading, and quoting the Basilica, as well as the evaluation and significance of the Basilica.",
+          "link": "https://referenceworks-brill-com.ezproxy.law.stanford.edu/display/db/basi"
+        },
+        {
+          "name": "Foreign Law Guide",
+          "description": "Foreign Law Guide (FLG) provides information on sources of foreign law, including bibliographic citations to legislation, the existence of English translations, and selected references to secondary sources of approximately 190 jurisdictions. Search by country or by subject.",
+          "link": "https://referenceworks-brill-com.ezproxy.law.stanford.edu/display/db/flg"
+        }
+      ]
+    },
+    {
+      "name": "EBSCO",
+      "description": "",
+      "link": "",
+      "is_routing_bucket": true,
+      "children": [
+        {
+          "name": "Index to Legal Periodicals Retrospective: 1908-1981",
+          "description": "Index to Legal Periodicals Retrospective (ILP Retrospective) indexes approximately 540,000 articles from more than 750 legal periodicals published in the United States, Canada, Great Britain, Ireland, Australia, and New Zealand. ILP and ILP Retrospective may be searched simultaneously using a combined search through EBSCOhost.",
+          "link": "https://ezproxy.law.stanford.edu/login?url=https://search.ebscohost.com/login.aspx?authtype=ip,uid&profile=ehost&defaultdb=lpr"
+        },
+        {
+          "name": "Index to Legal Periodicals & Books Full Text",
+          "description": "Index to Legal Periodicals & Books (ILP) is a bibliographic database citing articles from law journals and books from 1981 to present. Coverage includes English language legal information, with international coverage of scholarly articles, symposia, jurisdictional surveys, court decisions, legislation, books, book reviews, and more. Full text is available for more than 400 periodicals from 1995 forward.",
+          "link": "https://ezproxy.law.stanford.edu/login?url=https://search.ebscohost.com/login.aspx?authtype=ip,uid&profile=ehost&defaultdb=lft"
+        }
+      ]
+    },
+    {
+      "name": "Elgar",
+      "description": "",
+      "link": "",
+      "is_routing_bucket": true,
+      "children": [
+        {
+          "name": "Elgar Concise Encyclopedias",
+          "description": "Precise and deep overviews of topics. Specific titles include Animal Law; Aviation Law; AI and the Law; Food Law; International Commercial Arbitration; Law and Literature; Legal Education; Migration and Asylum Law; Oil and Gas Law; Polar Law; Space Law; and Sports Law.",
+          "link": "https://ezproxy.law.stanford.edu/login?url=https://www.elgaronline.com/browse?access=user&bot=bot&ct_6=encyclopedia&level=parent&pageSize=10&sort=titlesort&t=encyclopedia"
+        },
+        {
+          "name": "Elgaronline Encyclopedias",
+          "description": "Elgaronline Encyclopedias are up-to-date, authoritative legal reference works edited by leading scholars and experts in their fields. Each volume is fully keyword searchable and includes a detailed table of contents so that users can browse easily between individual chapters, which provide in-depth overviews of the individual topic and exhaustive bibliographies for advanced research.",
+          "link": "https://ezproxy.law.stanford.edu/login?url=https://www.elgaronline.com/browse?submittedFilterId=by-type-taxonomy&access=user&level=parent&pageSize=10&sort=datedescending&ct_6=encyclopedia"
+        },
+        {
+          "name": "Elgar Encyclopedia of Environmental Law",
+          "description": "Elgar Encyclopedia of Environmental Law provides coverage of the dynamic field of environmental law, including the following subjects: climate change law; decision making in environmental law; biodiversity and nature protection law; compliance and enforcement of environmental law; and multilateral environmental treaties.",
+          "link": "https://ezproxy.law.stanford.edu/login?url=https://www.elgaronline.com/display/book/9781785369520/9781785369520.xml"
+        },
+        {
+          "name": "Elgar Encyclopedia of International Economic Law",
+          "description": "Elgar Encyclopedia of International Economic Law presents international economic law in its broadest, real-world context, including coverage of international monetary institutions, tax institutions, global development initiatives, intellectual property rights, energy institutions, the World Trade Organization, and the International Court of Justice. It contains entries explaining over 200 concepts and terms in international economic law.",
+          "link": "https://ezproxy.law.stanford.edu/login?url=https://www.elgaronline.com/display/book/9781800882324/9781800882324.xml"
+        }
+      ]
+    },
+    {
+      "name": "Gale",
+      "description": "",
+      "link": "",
+      "is_routing_bucket": true,
+      "children": [
+        {
+          "name": "American Civil Liberties Union, 1912-1990",
+          "description": "The records of the American Civil Liberties Union (ACLU) on free speech, citizenship, race, discrimination, immigration, labor, radicalism, and related topics support the study of American legal history and complement the modules in the Making of Modern Law series. Documents include newspaper clippings, scrapbooks, court files, memorandums, telegrams, minutes, and legal case records. This resource provides textual analysis tools so users can identify and visualize patterns, trends, and relationships.",
+          "link": "https://go-gale-com.ezproxy.law.stanford.edu/ps/start.do?p=ACLU&u=stan90222"
+        },
+        {
+          "name": "Crime, Punishment, and Popular Culture, 1790-1920",
+          "description": "With 2.1 million pages of trial transcripts, police and forensic reports, detective novels, newspaper accounts, true crime literature, and related ephemera, Crime, Punishment, and Popular Culture, 1790-1920 presents the broadest and deepest collection of materials supporting the study of nineteenth-century criminal history, law, literature, and justice. This quintessential resource enhances understanding of the intersection of law and society during a pivotal era of social change. It covers Europe, North America, India, and the Antipodes. Materials are in English, Spanish, Italian, and German. Notable crimes may have corresponding media of court transcripts, prison and transportation records, petitions, police advertisements, collections of newsprint cuttings, ballad broadsheets, and criminological comment.",
+          "link": "https://go-gale-com.ezproxy.law.stanford.edu/ps/start.do?p=CPPC&u=stanford_law"
+        },
+        {
+          "name": "Eighteenth Century Collections Online",
+          "description": "Eighteenth Century Collections Online (ECCO) is a premier source for eighteenth-century research. It contains over 136,000 titles (155,000 volumes) and over 26 million pages, including works published in the UK during the 18th century and elsewhere. It covers documents in literature and language; history and geography; religion and philosophy; social sciences and fine arts; medicine, science and technology law; and general reference. The law collection includes thirty-one editions of William Blackstones Commentaries on the Laws of England as well as decisions, petitions, proceedings, treatises, and trials. Research tools are available to identify, for example, key documents in different disciplines, including law, and even access to the most popular searches in various subject areas.",
+          "link": "https://login.laneproxy.stanford.edu/login?url=https://link.gale.com/apps/llconverter/itweb/stan90222?db=ECCO"
+        },
+        {
+          "name": "Supreme Court Records and Briefs",
+          "description": "Supreme Court Records and Briefs is a database of Supreme Court opinions, appellant and appellee briefs, oral transcripts, and petitions for writ of certiorari from 1832 to1978. All documents are available to download in PDF format. Supreme Court Records and Briefs includes basic and advanced search tools throughout the site.",
+          "link": "https://go-gale-com.ezproxy.law.stanford.edu/ps/start.do?p=SCRB&u=stanford_law"
+        }
+      ]
+    },
+    {
+      "name": "HeinOnline",
+      "description": "HeinOnline provides access to scanned modern and historical materials on a variety of legal topics. Collections include the Law Journal Library, Bar Journals, the Index to Foreign Legal Periodicals (IFLP), Legal Classics, Subject Compilations of State Laws, and primary legal authorities including the U.S. Reports, the U.S. Treaties and Agreements Library, and the state Session Laws Library.",
+      "link": "https://ezproxy.law.stanford.edu/login?url=http://www.heinonline.org/HOL/Welcome",
+      "is_routing_bucket": false,
+      "children": [
+        {
+          "name": "Indigenous Peoples of the Americas: History, Culture & Law",
+          "description": "With 4,000 titles unique to this collection and more than 2.3 million total pages dedicated to indigenous American Law, this library includes an expansive archive of treaties (drawn primarily from the Kappler index), federal statutes and regulations, federal case law, and historical tribal codes, constitutions, and jurisprudence. This library also features rare compilations edited by Felix S. Cohen, never before accessible online. Some other notable resources include: legislative histories; CRS reports; hearings; the complete run of the Indian Law Reporter; Tribal Law Journal; documents from the Interior Board of Indian Appeals (1972-2020); Decisions of the Interior Board of Land Appeals (1970-2021); Indian Claims Commission Decisions, United States (1948-1978); and Digest of Decisions of the Department of the Interior in Cases Relating to the Public Lands (1891-1994).",
+          "link": "https://heinonline-org.ezproxy.law.stanford.edu/HOL/Index?collection=amindian"
+        },
+        {
+          "name": "Code of Federal Regulations",
+          "description": "Coverage is comprehensive, containing all volumes dating back to inception (1938). The Code of Federal Regulations (CFR) is the codification of the rules and regulations published in the Federal Register. You can locate a CFR title, part, or section utilizing the Title/Part/Section Quick Locator Tool or utilize the CFR Citation Locator tool.",
+          "link": "https://ezproxy.law.stanford.edu/login?url=https://heinonline.org/HOL/Index?collection=cfr"
+        },
+        {
+          "name": "Criminal Justice & Criminology",
+          "description": "HeinOnline's Criminal Justice & Criminology database provides historical content related to criminal justice and criminology, including Bureau of Justice statistics, Congressional documents related to both topics, plus pamphlets, memoirs, and books from law enforcement officers and criminals themselves. The documents are organized into 16 subject areas (such as criminal statistics; drug enforcement; law enforcement; and victimology), with the goal of providing a detailed overview of how criminal justice and criminology have changed over time in the United States and England.",
+          "link": "https://heinonline-org.ezproxy.law.stanford.edu/HOL/Index?collection=agopinions&set_as_cursor=clear"
+        },
+        {
+          "name": "Foreign & International Law Resources Database",
+          "description": "Foreign and International Law Resources Database (FILRD) includes the publications of the American Society of International Law along with prominent Yearbooks from around the world, including the Hague Permanent Court of International Justice series. It also includes U.S. Law Digests, International Tribunals/Judicial Decisions, and reports from the Court of Justice of the European Communities.",
+          "link": "https://ezproxy.law.stanford.edu/login?url=https://heinonline.org/HOL/Index?collection=intyb"
+        },
+        {
+          "name": "Hague Academy Collected Courses Online/Recueil des cours en ligne",
+          "description": "This collection includes the complete archive of collected courses dating back to their inception in 1923, twelve periodic indexes, and the official publications from the Workshops organized by the Academy. The collection can be full-text searched or browsed by title, subject, or author.",
+          "link": "https://ezproxy.law.stanford.edu/login?url=https://heinonline.org/HOL/Index?collection=hague"
+        },
+        {
+          "name": "History of Supreme Court Nominations",
+          "description": "This collection features the complete print series Supreme Court of the U.S. Hearings and Reports on Successful and Unsuccessful Nominations of Supreme Court Justices by the Senate Judiciary Committee. The Browse by Justice option allows you to see relevant works related to that Justice, including links to articles, a bibliography of other works, and links to Scholarly Articles.",
+          "link": "https://ezproxy.law.stanford.edu/login?url=https://heinonline.org/HOL/Index?index=supcourt&collection=supcourt"
+        },
+        {
+          "name": "Immigration Law & Policy in the U.S.",
+          "description": "This collection is a compilation of historical documents and legislation related to immigration in the United States as well as current hearings, debates and recent developments in immigration law. Includes Bureau of Immigration Appeals (BIA) Precedent Decisions, legislative histories, law and policy titles, extradition titles, scholarly articles, a bibliography, and other related works. Full-text search or browse by title, author, date, or subject. Coverage from the 19th century to the present varies by publication.",
+          "link": "https://ezproxy.law.stanford.edu/login?url=https://heinonline.org/HOL/Index?index=immigration&collection=immigration"
+        },
+        {
+          "name": "Index to Foreign Legal Periodicals",
+          "description": "The Index to Foreign Legal Periodicals (IFLP) is a multilingual index to articles and book reviews appearing in more than 500 legal journals published worldwide. It provides in-depth coverage of public and private international law, comparative and foreign law, and the law of all jurisdictions. IFLP also analyzes the contents of approximately fifty individually published collections of legal essays, Festschriften, Mlanges, and congress reports each year. The IFLP database includes records from 1984 to present and can be full-text searched or browsed by subject, country subject, region, or publication title. The print edition includes records from 1960 to the present and can be full-text searched. Search options include searching in non-English languages.",
+          "link": "https://ezproxy.law.stanford.edu/login?url=https://heinonline.org/HOL/Index?collection=iflp"
+        },
+        {
+          "name": "Intellectual Property Law Collection",
+          "description": "This collection includes legislative histories, treatises, documents, classics, and more relating to copyrights, patents, and trademarks. Titles include: Legislative History of the 1909 Copyright Act (1976), Kamenstein Legislative History Project: A Compendium and Analytical Index of Materials Leading to the Copyright Act of 1976, and William Robinsons Law of Patents for Useful Inventions. This collection also features CFR Title 37, U.S. Code Titles 17 and 35, Manual of Patent Examining Procedure, and other resources.",
+          "link": "https://ezproxy.law.stanford.edu/login?url=https://www.heinonline.org/HOL/Index?collection=intprop&set_as_cursor=clear"
+        },
+        {
+          "name": "Law Journal Library",
+          "description": "Contains over 2000 law and law-related periodicals. Coverage is from the first issue published for all periodicals and goes through the most current issues allowed based on contracts with publishers. Search by article title, author, subject, state or country published, full text, and date.",
+          "link": "https://ezproxy.law.stanford.edu/login?url=https://heinonline.org/HOL/Index?collection=journals"
+        },
+        {
+          "name": "Legal Classics",
+          "description": "Includes thousands of classic legal works from Joseph Story, Jeremy Bentham, William Blackstone, William Holdsworth, Henry Maine, Federick William Maitland, Frederick Pollock, Benjamin E. Cardozo, and more. Users can search or browse by title, author, date, or subject.",
+          "link": "https://ezproxy.law.stanford.edu/login?url=https://heinonline.org/HOL/Index?collection=beal"
+        },
+        {
+          "name": "National Survey of State Laws",
+          "description": "The National Survey of State Laws provides basic state-by-state comparisons of current state laws. Users can sort the compilations by particular states or pull entire country-wide surveys. Topics are updated intermittently, and users have the option to compare laws as they existed in previous years.",
+          "link": "https://ezproxy.law.stanford.edu/login?url=https://heinonline.org/HOL/Index?index=nssl/nasustl&collection=nssl"
+        },
+        {
+          "name": "Religion and the Law",
+          "description": "Religion and the Law is a collection within HeinOnline containing materials on the development, history, organization, and fundamental principles of various world religions. The collection also includes the Christian Legal Society publications, a collection of Canon law, rare historical Bibles, and a compilation of State Religious Freedom Restoration Acts. This collection uses basic and advanced search tools throughout the site, and new materials are added periodically.",
+          "link": "https://ezproxy.law.stanford.edu/login?url=https://heinonline.org/HOL/Index?collection=religion"
+        },
+        {
+          "name": "Session Laws Library",
+          "description": "This HeinOnline collection contains PDF scans of the session laws of all 50 U.S. states, Canada, Australia, Puerto Rico, the U.S. Virgin Islands, and the Bahamas, as well as the District of Columbia Register, and the United States Statutes at Large. The Session Laws Library also includes a collection of American colonial-era session laws organized by state, and the session laws of various American territories prior to statehood. All U.S. state session laws are current within 60 days of their publication in print.",
+          "link": "https://ezproxy.law.stanford.edu/login?url=https://heinonline.org/HOL/Index?collection=ssl"
+        },
+        {
+          "name": "Slavery in America and the World: History, Culture & Law",
+          "description": "Slavery in America and the World: History, Culture & Law (HeinOnline) This HeinOnline collection includes all U.S. federal, state, and colonial statutes and cases addressing slavery, as well as a selection of pro and anti-slavery periodicals, scholarly articles on the topic of slavery, and monographs on slavery published by the UNC Press. This collection uses basic and advanced search tools throughout the site and is updated periodically.",
+          "link": "https://ezproxy.law.stanford.edu/login?url=https://heinonline.org/HOL/Index?collection=slavery"
+        },
+        {
+          "name": "State Constitutions Illustrated",
+          "description": "State Constitutions Illustrated contains the text of the state constitutions and related materials from each of the 50 states, including the original, consolidated, and current texts, alongside an extensive selection of more 10,000 historical documents from before statehood.",
+          "link": "https://ezproxy.law.stanford.edu/login?url=https://heinonline.org/HOL/Index?collection=statecon"
+        },
+        {
+          "name": "State Statutes: A Historical Archive",
+          "description": "This HeinOnline collection contains superseded statutory codes of all fifty U.S. states. Users can search the statutes by state, date, or full-text. Materials in this collection date from 1717-2000.",
+          "link": "https://ezproxy.law.stanford.edu/login?url=https://www.heinonline.org/HOL/Index?collection=sstatutes"
+        },
+        {
+          "name": "Taxation & Economic Reform in America",
+          "description": "This HeinOnline collection contains historical materials on U.S. tax law and economic policy from 1909-present. This includes selected statutes, CFR Titles, legislative histories dating back to the 1700s, scholarly articles, Congressional Budget Office and Congressional Research Service reports, and hearing transcripts. The collection has basic and advanced search tools and is updated periodically.",
+          "link": "https://ezproxy.law.stanford.edu/login?url=https://heinonline.org/HOL/Index?collection=tera&set_as_cursor=clear"
+        },
+        {
+          "name": "U.S. Congressional Documents",
+          "description": "This HeinOnline collection features the complete Congressional Record Bound Edition, as well as the daily version back to 1980. It also includes the Congressional Record’s three predecessor titles: Annals of Congress (1789-1824), Register of Debates (1824-1837) and the Congressional Globe (1833-1873). This collection also includes congressional hearings, congressional reports, committee prints, parliamentary rules and precedents, and a selection of Congressional Research Service (CRS) Reports. Basic and advanced search tools are available throughout the site, as well as a Daily-to-Bound Edition Locator Tool.",
+          "link": "https://ezproxy.law.stanford.edu/login?url=https://heinonline.org/HOL/Index?collection=congrec"
+        },
+        {
+          "name": "U.S. Federal Agency Documents, Decisions, and Appeals",
+          "description": "This HeinOnline collection contains reports, administrative decisions, and records from over 70 federal agencies, as well as more than 65 popular GPO legal titles. Materials in this collection are from 1751-present, though dates of coverage may vary depending on the agency and the publication. This collection is updated on a continual basis, and has basic, advanced, and subject-based search tools throughout the site. Users can also browse by publication type, title, author, subject, and date.",
+          "link": "https://ezproxy.law.stanford.edu/login?url=https://heinonline.org/HOL/Index?collection=usfed"
+        },
+        {
+          "name": "U.S. Federal Legislative History Library",
+          "description": "This HeinOnline collection includes over 2,400 compiled federal legislative histories from a variety of sources, including the GPO, Arnold and Porter, Covington and Burling, and Kirkland and Ellis. This collection uses basic and advanced search tools throughout the site, as well as the index from Nancy Johnsons Sources of Compiled Legislative Histories, which includes citations to law review articles relevant to specific legislative histories. Users can also browse by publication, title, author, date, or subject. The U.S. Federal Legislative History Library is updated periodically.",
+          "link": "https://ezproxy.law.stanford.edu/login?url=https://heinonline.org/HOL/Index?collection=leghis"
+        },
+        {
+          "name": "U.S. Presidential Library",
+          "description": "This HeinOnline collection includes the messages and papers of the presidents (spanning George Washington to Herbert Hoover), public papers of the presidents (spanning Hoover to George W. Bush), CFR Title 3 (Presidents), daily and weeky compilations of presidential documents, and an assortment of miscellaneous documents related to U.S. presidents. The U.S. Presidential Library also includes government documents and secondary sources covering the impeachments of President Johnson, Nixon, and Clinton, and secondary sources on impeachment in the United States generally. This collection uses basic and advanced search tools, can be browsed by document type, title, author, date, or subject, and is updated on a continual basis.",
+          "link": "https://ezproxy.law.stanford.edu/login?url=https://heinonline.org/HOL/Index?index=alpha/A_presidents&collection=presidents"
+        },
+        {
+          "name": "U.S. Treaties and Agreements Library",
+          "description": "This HeinOnline collection includes all U.S. treaties, whether currently in force, expired, or not-yet officially published, as well as the United States Treaties and Other International Agreements set (commonly referred to as the \"Blue set\") and an assortment of related publications. This collection uses basic and advanced search tools throughout the site and can also be browsed by publication type. This collection is updated on a continual basis.",
+          "link": "https://ezproxy.law.stanford.edu/login?url=https://heinonline.org/HOL/Index?index=ustreaties&collection=ustreaties"
+        },
+        {
+          "name": "World Constitutions Illustrated",
+          "description": "This HeinOnline collection includes the constitution of every country in both its original language and English, the World Factbook, and periodicals, articles, and books on the constitutional history and development of most countries in the collection. World Constitutions Illustrated uses basic, advanced, and subject-based search tools throughout the site, and is updated periodically.",
+          "link": "https://ezproxy.law.stanford.edu/login?url=https://heinonline.org/HOL/COW?collection=cow"
+        }
+      ]
+    },
+    {
+      "name": "Law.com",
+      "description": "Law.com provides access to legal news stories, law journal articles, U.S. and global legal rankings, surveys, events, employment opportunities, and topical legal research. Covered publications include The American Lawyer, The National Law Journal, The Recorder, and Supreme Court Brief. This resource is available to the Stanford Law School community.",
+      "link": "https://www-law-com.ezproxy.law.stanford.edu/",
+      "is_routing_bucket": false,
+      "children": [
+        {
+          "name": "American Lawyer",
+          "description": "American Lawyer is a daily news source covering the U.S. and global legal industry, law firms, and lawyers. American Lawyer’ surveys and rankings include the Am Law 100 and Am Law 200.",
+          "link": "https://www-law-com.ezproxy.law.stanford.edu/americanlawyer/?slreturn=20251117101751"
+        },
+        {
+          "name": "National Law Journal",
+          "description": "The National Law Journal (NLJ) offers legal news focusing on federal and state court litigation, legislative issues, and verdicts. NLJ also offers regular columns by legal analysts and opinion pieces by lawyers, judges, legal educators, and elected officials.",
+          "link": "https://www-law-com.ezproxy.law.stanford.edu/nationallawjournal/"
+        },
+        {
+          "name": "The Recorder",
+          "description": "The Recorder is a daily news website with a focus on legal, business, and technology news in California.",
+          "link": "https://www-law-com.ezproxy.law.stanford.edu/therecorder/"
+        },
+        {
+          "name": "Supreme Court Brief",
+          "description": "Supreme Court Brief is a daily news site that covers the U.S. Supreme Court, including opinions, the justices, new petitions, top appellate advocates, and oral arguments. For filed U.S. Supreme Court briefs, see Supreme Court Records and Briefs and Supreme Court Insight.",
+          "link": "https://www-law-com.ezproxy.law.stanford.edu/supremecourtbrief/"
+        }
+      ]
+    },
+    {
+      "name": "Lexis+",
+      "description": "",
+      "link": "",
+      "is_routing_bucket": true,
+      "children": [
+        {
+          "name": "CourtLink",
+          "description": "CourtLink is Lexis Plus' federal and state court docket research tool, permitting search and retrieval of filed court documents. Please note that conducting federal docket research on Bloomberg Law (BLAW) is strongly encouraged; it should have the same information as PACER and offers extensive search options. However, since state coverage varies among docket databases, it is worth checking CourtLink for state dockets. Courtlink is accessible by logging into one's personal Lexis Plus account. Additional information on how to use CourtLink is available in the Docket Research guide here.",
+          "link": "https://advance.lexis.com/courtlinkhome"
+        },
+        {
+          "name": "Intelligize",
+          "description": "Intelligize (formerly Lexis Securities Mosaic) is a research platform for searching and accessing materials relevant to securities disclosures, transactions, regulation, enforcement, and compliance; and analytics pulled from the same. Coverage includes SEC Filings, SEC No-Action Letters, SEDAR Filings, Private Placement Memoranda, and UK Filings, along with news updates from law firms and securities blogs. In order to access Intelligize, users must use their LexisNexis login information.",
+          "link": "https://apps.intelligize.com/"
+        },
+        {
+          "name": "Law360",
+          "description": "Law360 is a legal news service focusing on lawsuit filings, litigation, settlements, verdicts, and courts. Options include full-text searching and browsing by topic. Law360 is also accessible for all SLS faculty, staff and students through your law school Lexis Advance account.",
+          "link": "https://ezproxy.law.stanford.edu/login?url=https://www.law360.com"
+        },
+        {
+          "name": "LexisNexis",
+          "description": "LexisNexis provides comprehensive access to U.S. federal and state statutes, regulations, case law, secondary legal materials, news, and the Shepard's citator through its Lexis Advance platform. Access to LexisNexis is limited to the current Stanford Law School community and requires personal, custom usernames and passwords from individual users. Please contact Reference.",
+          "link": "https://lawschool.lexis.com/"
+        }
+      ]
+    },
+    {
+      "name": "MoML",
+      "description": "",
+      "link": "",
+      "is_routing_bucket": true,
+      "children": [
+        {
+          "name": "Making of Modern Law: Foreign, Comparative and International Law, 1600-1926",
+          "description": "This set contains historical session laws, regulations, and codes from Europe, Latin America, Canada, Australia, New Zealand, Africa, and Asia. The collection also includes commentary and journals on historical primary sources. Texts are sourced from the law libraries at Yale University, Harvard University, and George Washington University using Optimal Character Recognition scanning. About half the publications in MOML: FPS are in English. Other languages include Spanish, French, Italian, German, Latin, and Portuguese. Full-text searching is available.",
+          "link": "https://ezproxy.law.stanford.edu/login?url=https://link.gale.com/apps/MMLF?u=stanford_law"
+        },
+        {
+          "name": "Making of Modern Law: Foreign Primary Sources, 1600-1970",
+          "description": "This set contains foreign legal treatises, commentaries, encyclopedias, textbooks, monographs, and festschriften dated between 1600-1926. It features works from legal theorists, including Gentili, Grotius, Selden, Zouche, Pufendorf, Bijnkershoek, Wolff, Vattel, Martens, Mackintosh, and Wheaton, among others. Foreign law materials include historical legal documents from countries including Argentina, Australia, Canada, France, Germany, India, Italy, Mexico, the Netherlands, South Africa, Spain, and Switzerland. The texts in MOML: FCIL are sourced from the law libraries at Yale, George Washington University, and Columbia using Optimal Character Recognition scanning. Full-text searching is available.",
+          "link": "https://ezproxy.law.stanford.edu/login?url=https://link.gale.com/apps/MLFP?u=stanford_law"
+        },
+        {
+          "name": "Making of Modern Law: Primary Sources",
+          "description": "This set is comprised of two separate collections of resources related to American legal history. For the period spanning from 1620-1926, it provides a digital archive of the published records of the American colonies and documents published by state constitutional conventions, state codes, city charters, law dictionaries, and digests. For 1763-1970, it offers United States state and territorial codes, municipal codes, and constitutional convention and compilations. Full-text searching is available.",
+          "link": "https://ezproxy.law.stanford.edu/login?url=https://link.gale.com/apps/MMLP?u=stanford_law"
+        },
+        {
+          "name": "Making of Modern Law: Trials, 1600-1926",
+          "description": "This set is a collection of legal records and documents relating to historical Anglo-American trials. The collection includes unofficially published accounts of trials, official trial documents, briefs and arguments, and official records of legislative proceedings, administrative proceedings and arbitrations. MOML: Trials materials are original PDF images, sourced from Harvard and Yales law libraries along with the Library of the Association of the Bar of New York City and the British Library. Full-text searching is available.",
+          "link": "https://ezproxy.law.stanford.edu/login?url=https://link.gale.com/apps/MMLT?u=stanford_law"
+        },
+        {
+          "name": "Making of Modern Law: US & UK Legal Treatises, 1800-1926",
+          "description": "This set contains historical American and British casebooks, practice manuals, form books, works for lay readers, pamphlets, letters, speeches, and further writings about the law. Most of these works are scanned from their original format, and the majority of the collection has been sourced from Harvard Law School Library. Full-text searching is available.",
+          "link": "https://ezproxy.law.stanford.edu/login?url=https://link.gale.com/apps/MOML?u=stanford_law"
+        }
+      ]
+    },
+    {
+      "name": "Oxford",
+      "description": "",
+      "link": "",
+      "is_routing_bucket": true,
+      "children": [
+        {
+          "name": "Oxford Bibliographies",
+          "description": "Oxford Bibliographies provides users with resource suggestions on a variety of topics including international law, criminology, public health, education, and the environment. Articles point users to the core texts and written histories for each subject while also providing Oxford Bibliographies commentary on the resources connections to the subject matter. The database links to Stanfords Searchworks catalog, so users move from Oxford Bibliographies directly to suggested sources.",
+          "link": "https://www-oxfordbibliographies-com.stanford.idm.oclc.org/"
+        },
+        {
+          "name": "Oxford Scholarship Online",
+          "description": "Oxford Scholarship Online (OSO) provides full-text, downloadable access to thousands of scholarly books published by Oxford University Press. There are twenty subject areas to choose from, including law, political science, business and management, and public health, as well as a range of others in the humanities, social sciences, sciences, and medicine.",
+          "link": "https://stanford.idm.oclc.org/login?qurl=https://academic.oup.com/pages/oxford-scholarship-online"
+        },
+        {
+          "name": "Oxford Handbooks Online",
+          "description": "Oxford Handbooks Online (OHO) is the full text searchable platform for the Oxford Handbooks series. The OHOs collection of articles and handbooks offers users a broad collection of scholarship in many fields of study, such as Criminology and Criminal Justice and Law, with reviews of key issues, major debates, arguments for how those debates might evolve. Users can download full text searchable, printable PDFs of book chapters.",
+          "link": "https://academic-oup-com.stanford.idm.oclc.org/oxford-handbooks-online?login=true&token=eyJhbGciOiJub25lIn0.eyJleHAiOjE3NjU5OTIyOTcsImp0aSI6IjU5OTRhYTA1LTgxYmItNGQ2NC1hYjEyLTU3ZjQ1NTE0ZDU4OSJ9."
+        },
+        {
+          "name": "Max Planck Encyclopedia of Comparative Constitutional Law",
+          "description": "This resource documents and compares different constitutional positions on a range of political issues from countries throughout the World. The Encyclopedia covers contrasting global constitutional law and history, legal systems, policy arguments, culture and people, and constitutional design. It also provides scholarly commentary on underlying legal concepts such as human rights, constitutional formation, scope of state protections, the defining structures of governmental makeup, types of legal structures and interactions within a constitutional law system, and legal constitutional concepts that make up constitutional law. The database includes access to the Oxford Law Citator, which provides users with citations for legal documents along with suggestions for other items in the same subject area or jurisdiction.",
+          "link": "https://ezproxy.law.stanford.edu/login?url=http://oxcon.ouplaw.com/home/MPECCOL"
+        },
+        {
+          "name": "Max Planck Encyclopedia of Public International Law",
+          "description": "This resource provides users with electronic access to the print editions of the Max Planck Encyclopedia of Public International Law published between 1991 and 200 and to online-only articles authored since 2001. This database also includes peer-reviewed articles on subjects ranging from the theory of international law to air law and the law of outer space. The Oxford Law Citator gives users citations for the documents along with suggestions for other items in the same subject area or jurisdiction.",
+          "link": "https://ezproxy.law.stanford.edu/login?url=https://opil.ouplaw.com/home/EPIL"
+        },
+        {
+          "name": "Oxford Constitutions of the World",
+          "description": "Oxford Constitutions of the World (OCW) provides users access to English-language translations of a global selection of constitutions along with supplemental materials, such as jurisdictional commentaries and historical versions of constitutions. OCW covers both national and sub-national constitutions, including special sovereignties, autonomous regions, and disputed or irredentist jurisdictions. The database also provides users access to the Oxford Law Citator, which gives citations for documents and suggestions for other items in the same subject area or jurisdiction.",
+          "link": "https://oxcon-ouplaw-com.ezproxy.law.stanford.edu/home/OCW"
+        },
+        {
+          "name": "Oxford Historical Treaties",
+          "description": "Oxford Historical Treaties (OHT) provides users with access to historical treaties concluded from 1648 1919. Treaties can be browsed by type (multilateral or bilateral), geographic region, treaty party, and date. The database also includes access to the Oxford Law Citator, which provides users with citations for the treaties, along with the full treaty title, the treaty parties, and dates for the treaty.",
+          "link": "https://opil-ouplaw-com.ezproxy.law.stanford.edu/home/OHT"
+        },
+        {
+          "name": "Oxford Reports on International Law",
+          "description": "Oxford Reports on International Law (ORIL) contains public international case law for international law in EU courts, international trade law decisions, international law in domestic courts, international criminal law, international human rights law, international investment claims, and international courts of general jurisdiction. For cases available cases in ORIL, the database provides the full text of the case, headnotes, a summary of case facts, the case holding, analytical commentary, and a list of cases and instruments cited. A number of key non-English cases have English translations available.",
+          "link": "https://opil-ouplaw-com.ezproxy.law.stanford.edu/home/ORIL"
+        }
+      ]
+    },
+    {
+      "name": "PoliticoPro",
+      "description": "",
+      "link": "",
+      "is_routing_bucket": true,
+      "children": [
+        {
+          "name": "ClimateWire",
+          "description": "ClimateWire is E&E Publishings daily news source focused on climate policy and its effects on business, the environment, and society. ClimateWire includes breaking news and in-depth features of climate change actions and reactions. It provides 360-degree point-of-views to understand all sides of the climate debate. See E&E News for information about other titles it publishes.",
+          "link": "https://subscriber-politicopro-com.stanford.idm.oclc.org/eenews/pub/climatewire"
+        },
+        {
+          "name": "E&E News",
+          "description": "Environment & Energy News (E&E) is a media company focused on environmental and energy policy and markets. Its suite of daily news publications include E&E Daily, ClimateWire, EnergyWire and Greenwire.",
+          "link": "https://subscriber-politicopro-com.stanford.idm.oclc.org/eenews"
+        },
+        {
+          "name": "EnergyWire",
+          "description": "EnergyWire is E&E Publishings daily news source focused on environmental policy and its effects on business, the environment and society. See E&E News for information about other titles it publishes. It includes the latest news on developments in the electric utility and unconventional energy industries. It also tracks and analyzes select court decisions and lawsuits affecting the industry.",
+          "link": "https://law.stanford.edu/robert-crown-law-library/legal-databases/#energywire"
+        },
+        {
+          "name": "Environment & Energy Daily",
+          "description": "Environment & Energy Daily is E&E News flagship news service, covering environmental and energy policy and issues. See E&E News for information about other titles it publishes. It includes special reports. Issue coverage includes: federal legislation & policymakers; U.S. regulation & federal agencies; legal cases & judicial decisions; international & U.S. climate policy; energy resources & markets; state legislation & controversies; oil, natural gas, coal & nuclear; fracking & unconventional energy development; electric utilities; alternative energy; air & water pollution; public lands & mining; endangered species; and technology & science. Archives go back to January 2015.",
+          "link": "https://law.stanford.edu/robert-crown-law-library/legal-databases/#eedaily"
+        },
+        {
+          "name": "Greenwire",
+          "description": "Greenwire is E&E Newss daily news source covering major regulations, legislation, and court cases related to energy and the environment. Topics include investment trends, technology development, alternative fuels, and carbon mitigation strategies, in addition to the protection and development of natural resources, including energy production on public lands, water, endangered species and national parks. See E&E News for information about other titles it publishes.",
+          "link": "https://law.stanford.edu/robert-crown-law-library/legal-databases/#greenwire"
+        }
+      ]
+    },
+    {
+      "name": "ProQuest",
+      "description": "",
+      "link": "",
+      "is_routing_bucket": true,
+      "children": [
+        {
+          "name": "Indian Claims Insight",
+          "description": "ProQuests Indian Claims Insight provides researchers with documents related to Native American migration and resettlement throughout U.S. history, as well as U.S. Government Indian removal policies and subsequent actions to address Native American claims. Content includes decisions, transcripts, docket books, journals of the Indian Claims Commission, a judicial panel for relations between the U.S. Government and Native American tribes, and related statutes and congressional publications. Features include Docket Histories, which provides the complete legal process for an individual claim, and State/Territory and Nation/Tribe Histories, which provide insight into the treaties, claims, testimony, and decisions related to states and federally recognized Indian nations.",
+          "link": "https://ezproxy.law.stanford.edu/login?url=https://indianclaims.proquest.com?accountid=14026"
+        },
+        {
+          "name": "ProQuest Legislative Insight",
+          "description": "ProQuest Legislative Insight provides users with compiled federal legislative histories made up of digital, full text publications created by Congress during the process leading up to the enactment of U.S. Public Laws. Each legislative history includes the full text of the public law itself, all versions of related bills, law-specific Congressional Record excerpts, committee hearings, public comments, reports, and prints. The legislative histories also include presidential signing statements, Congressional Research Service reports, and miscellaneous congressional publications that provide background material to aid in the understanding of issues related to the making of the law. Legislative Insight includes documents related to the passage of particular public laws, so hearings, reports, bills that are not part of the pre-compiled legislative histories are not included in this database. For those other materials, please use ProQuest Congressional.",
+          "link": "https://ezproxy.law.stanford.edu/login?url=https://www.proquest.com/legislative?accountid=14026"
+        },
+        {
+          "name": "ProQuest Congressional",
+          "description": "ProQuest Congressional is a collection of congressional documents from 1789 to the present. The database includes congressional hearings, reports, committee prints, congressional records, and other federal legislative history materials. Users can also access congressional profiles, which provide historical context and significant events and decisions for each Congressional term, Congress member profiles, and social media updates from both members and federal agencies. ProQuest Congressional provides users with legislative bills and resolutions and Executive Branch documents. Full text searching is available, along with the option to browse by legislative and executive publications, members and committees, regulations, news and social media, and Congress in Context.",
+          "link": "https://ezproxy.law.stanford.edu/login?url=https://search.proquest.com/congressional?accountid=14026"
+        },
+        {
+          "name": "ProQuest History Vault: Law and Society",
+          "description": "ProQuest History Vault provides access to digitized letters, papers, photographs, scrapbooks, financial records, diaries, and other primary source materials from the University Publications of America (UPA) Collections. The database is organized into five distinct modules: Civil Rights and the Black Freedom Struggle, Southern Life, Slavery, and the Civil War, American Politics and Society, International Relations and Military Conflicts, and Womens Studies.",
+          "link": "https://stanford.idm.oclc.org/login?url=https://search.proquest.com/historyvault?accountid=14026"
+        },
+        {
+          "name": "ProQuest Regulatory Insight",
+          "description": "ProQuest Regulatory Insight creates regulatory histories for individual federal statutes and Executive Orders by compiling pertinent Federal Register articles. Search forms and results filters allow researchers to search by fields including agency and subject and refine search results. Complete coverage of the Federal Register is available from 1936 – present. The Code of Federal Regulations from 1938 – present is available, but the content has some coverage gaps (note, the CFR was not published from 1942 – 1948). Available regulatory histories span from 1935 - May 8, 2018.",
+          "link": "https://ezproxy.law.stanford.edu/login?url=https://regulatoryinsight.proquest.com/regulatoryinsight?accountid=14026"
+        },
+        {
+          "name": "ProQuest Supreme Court Insight",
+          "description": "Supreme Court Insight is a ProQuest database of U.S. Supreme Court cases, dockets, oral arguments, joint appendices, and amicus briefs from the 1975-2017 terms. Users can also search for cases the Supreme Court declined to hear (i.e., cert denied) from 1997-2016. For additional updates and search tips, users can consult the online LibGuides included with Supreme Court Insight. Supreme Court Insight uses basic and advanced search tools throughout the site and most content is updated on a one term delay.",
+          "link": "https://ezproxy.law.stanford.edu/login?url=http://supremecourt.proquest.com/supremecourt"
+        }
+      ]
+    },
+    {
+      "name": "SSRN",
+      "description": "The Social Science Research Network (SSRN) is a multi-disciplinary online repository of published and forthcoming scholarly articles. Users can search for articles using basic or advanced tools, or by subject area, and download most articles in full in PDF format.",
+      "link": "https://stanford.idm.oclc.org/login?url=https://www.ssrn.com/en/",
+      "is_routing_bucket": false,
+      "children": [
+        {
+          "name": "Legal Scholarship Network",
+          "description": "The Legal Scholarship Network (LSN), one of the Social Sciences Research Network (SSRN) subject networks, publishes electronic journals, abstracts of working papers, and articles accepted for publication in various areas of law. LSN also offers weekly professional announcements that include professional meetings, calls for papers, and job listings.",
+          "link": "https://www.ssrn.com/lsn/index.html"
+        }
+      ]
+    },
+    {
+      "name": "Thomson Reuters",
+      "description": "",
+      "link": "",
+      "is_routing_bucket": true,
+      "children": [
+        {
+          "name": "LawnB",
+          "description": "LAWnB (Lo aen pi) is a Korean legal database. Included are cases, laws and regulations, legal articles, lawyers, forms, administrative law, and business.",
+          "link": "https://academynext-lawnb-com.stanford.idm.oclc.org/Main/Index"
+        },
+        {
+          "name": "ProView",
+          "description": "Thomson Reuters ProView is a fully-searchable eBooks library collection that includes practice guides, statutory codes, court rules, handbooks, and treatises across a wide variety of legal topics and jurisdictions, including several California-specific materials.",
+          "link": "https://ezproxy.law.stanford.edu/login?url=https://next-proview.thomsonreuters.com/login?sponsor=003554784-1&forcecdn=false&bhskip=1"
+        },
+        {
+          "name": "Westlaw",
+          "description": "Westlaw is an online legal database that includes case law, state and federal statutes, administrative codes, newspaper and magazine articles, public records, law journals, law reviews, treatises, legal forms and other resources. Westlaw provides basic and advanced search tools throughout the site, as well as a citator, KeyCite, and a subject-based index, the West Key Number System. Westlaw is updated on a continual basis. Access to Westlaw is limited to the current Stanford Law School community and requires personal, custom usernames and passwords for individual users. Please contact Reference for more information.",
+          "link": "https://lawschool.thomsonreuters.com/"
+        }
+      ]
+    },
+    {
+      "name": "Wolters Kluwer",
+      "description": "",
+      "link": "",
+      "is_routing_bucket": true,
+      "children": [
+        {
+          "name": "Almanac of the Federal Judiciary",
+          "description": "Almanac of the Federal Judiciary includes judicial profiles of every federal judge and all the key bankruptcy judges and magistrate judges.",
+          "link": "https://almanacofthefederaljudiciary-com.ezproxy.law.stanford.edu/Dashboard"
+        },
+        {
+          "name": "Antitrust Law: An Analysis of Antitrust Principles and Their Application (Areeda and Hovenkamp) This link opens in a new window",
+          "description": "Often referred to as \"Areeda and Hovenkamp,\" Antitrust Law is a treatise covering mergers and acquisitions, intellectual property and antitrust, predatory pricing, antitrust issues in healthcare, media, and other areas, monopolizing conduct, \"substantial\" market power, market share and buyer concentration, interlocking directors, refusals to deal, territorial customer limitation, product tying, contractual arbitration provisions. The treatise explains antitrust law and policy, offers a critique of its application, and suggests how past and present treatment of issues may be improved.",
+          "link": "https://my-vitallaw-com.ezproxy.law.stanford.edu/#/publication/Antitrust/WKUS_TAL_15288?daId=WKUS_TAL_15288"
+        },
+        {
+          "name": "Blumberg on Corporate Groups",
+          "description": "Blumberg on Corporate Groups is written by lead author Phillip I. Blumberg, who created and defined this field of law. It examines the interrelationships of the component parts of a corporate group across the full spectrum of the law during solvency and bankruptcy. It offers in-depth coverage of both statutory and case law (federal and state), discussing thousands of cases while providing a detailed review of major business regulatory areas. This e-resource is available to Stanford users through Wolters Kluwer's VitalLaw platform. Users must register with Wolters Kluwer using current Stanford email addresses prior to access.",
+          "link": "https://ezproxy.law.stanford.edu/login?url=https://my.vitallaw.com/#/publication/SecuritiesCorporate/WKUS_TAL_15264?daId=WKUS_TAL_152644"
+        },
+        {
+          "name": "VitalLaw",
+          "description": "VitalLaw's new legal research platform focuses on Antitrust & Competition; Blue Chip materials; Intellectual Property; and Securities. It includes material from CCH (Commerce Clearing House) and Intelliconnect, white papers and forms, plus access to Goldstein on Copyright and Areeda and Hovenkamp’s Antitrust Law: An Analysis of Antitrust Principles and Their Applications. VitalLaw also allows you to create custom Smart Charts to compare securities litigation across jurisdictions.",
+          "link": "https://my-vitallaw-com.ezproxy.law.stanford.edu/"
+        },
+        {
+          "name": "Goldstein on Copyright",
+          "description": "Goldstein on Copyright is a treatise that offers detailed analysis of copyright law from registration to litigation. Topics covered include issues in information and entertainment technologies as well as securing, protecting, acquiring, selling, transferring, or licensing copyrights in the United States and around the world. It includes analysis of recent court decisions, Lanham Act Section 43(a), vicarious liability, public performance, and more. Electronic access is available through VitalLaw.",
+          "link": "https://ezproxy.law.stanford.edu/login?url=https://my.vitallaw.com/#/publication/IP/WKUS_TAL_15004?daId=WKUS_TAL_15004"
+        },
+        {
+          "name": "Kluwer Arbitration",
+          "description": "Kluwer Arbitration is a database of international commercial arbitration primary and secondary resources, including case law, commentary, conventions, legislation, and rules. Kluwer Arbitration can also be accessed through Wolters Kluwer's VitalLaw platform under the International Securities & Business.",
+          "link": "https://ezproxy.law.stanford.edu/login?url=https://www.kluwerarbitration.com"
+        },
+        {
+          "name": "Kluwer Law Online",
+          "description": "Kluwer Law Online is an online archive and research database that has a unique collection of journals and manuals covering various aspects of international law. It includes the International encyclopaedia of laws for Constitutional law, intellectual property, and criminal law.",
+          "link": "https://ezproxy.law.stanford.edu/login?url=https://www.kluwerlawonline.com"
+        },
+        {
+          "name": "RBsource",
+          "description": "RBsource is a securities law database that includes statutes, regulations, guidance materials published by the SEC, and secondary sources. RBsource also provides access to the SECs EDGAR database, which includes filings, exhibits, SEC comment letters, and no-action letters. RBsource uses basic and advanced search tools throughout the site and is updated on a continual basis. Users must register with RBsource using a current Stanford email address prior to access.",
+          "link": "https://www.rbsourcefilings.com/"
+        }
+      ]
+    }
+  ],
+  "ai_tools": [
+    {
+      "name": "Harvey",
+      "description": "Harvey is a generative AI legal assistant that supports case analysis, summarization, and document drafting across practice areas.",
+      "access_note": "Requires completing the library's AI Essentials Training before access."
+    },
+    {
+      "name": "Legora",
+      "description": "Legora combines AI-assisted document review, analysis, and drafting within an integrated workspace.",
+      "access_note": "Requires completing the library's AI Essentials Training before access."
+    },
+    {
+      "name": "LexText AI",
+      "description": "LexText AI is an AI-assisted platform with step-by-step support for drafting litigation documents.",
+      "access_note": "Requires completing the library's AI Essentials Training before access."
+    },
+    {
+      "name": "CICERO (Rhetoric)",
+      "description": "CICERO (Rhetoric) is an AI-powered advocacy training platform that helps students build practical lawyering skills through dynamic simulations and targeted feedback.",
+      "access_note": "Requires completing the library's AI Essentials Training before access."
+    }
+  ]
+}
