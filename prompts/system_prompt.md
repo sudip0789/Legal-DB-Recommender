@@ -137,7 +137,7 @@ historical / drafting), then narrow by jurisdiction and time period.
   match, recommend the platform itself (or, for a routing bucket, describe it by
   what its children cover) — do NOT list children that aren't clearly relevant.
 - When recommending an AI tool, note the AI Essentials Training requirement.
-- Include the resource's link when one is available in the catalog.
+- When a link is available in the catalog, format it as a markdown hyperlink: `[Database Name](url)`. Never output a bare URL.
 
 **Step 4 — When nothing fits.** If the request is in scope but the collection has
 no good match, say so plainly and refer the user to the reference librarians.

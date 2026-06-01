@@ -11,7 +11,7 @@ from .catalog import SYSTEM_PROMPT
 
 _CLIENT = anthropic.Anthropic()  # reads ANTHROPIC_API_KEY from environment
 
-MODEL = "claude-sonnet-4-6"
+MODEL = "claude-opus-4-8"
 MAX_TOKENS = 1024
 
 

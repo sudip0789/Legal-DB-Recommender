@@ -2,14 +2,11 @@
 
 AI assistant that recommends the right legal-research database from the
 [Robert Crown Law Library](https://law.stanford.edu/robert-crown-law-library/)
-collection, given a user's research question. Built on the Anthropic API.
+collection, given a user's research question.
 
 ---
 
 ## Architecture
-
-Two layers, cleanly separated so Stanford's production team inherits the
-"brain" and rebuilds only the "shell":
 
 ```
 project/
@@ -77,13 +74,9 @@ Open [http://localhost:8501](http://localhost:8501).
 2. Go to [share.streamlit.io](https://share.streamlit.io), connect the repo,
    and set the main file to `app.py`.
 
-3. In the app settings → **Secrets**, add your environment variables in TOML:
-
-```toml
-ANTHROPIC_API_KEY = "sk-ant-..."
-APP_PASSWORD = "your_password"
-USE_CACHE = "false"
-```
+3. In the app settings → **Secrets**, add your environment variables in TOML
+   (see the Google Sheets section below for the full secrets block including
+   `GOOGLE_SHEET_ID` and `GOOGLE_SERVICE_ACCOUNT_JSON`).
 
 4. Deploy. Share the URL with eval participants.
 
@@ -126,38 +119,23 @@ also survives Streamlit Cloud restarts.
    GOOGLE_SERVICE_ACCOUNT_JSON={"type":"service_account","project_id":"..."}
    ```
 
-   Paste the **entire contents** of the downloaded JSON key file as the value
-   of `GOOGLE_SERVICE_ACCOUNT_JSON` (all on one line, no line breaks).
-
 ### For Streamlit Community Cloud
 
-In the app settings → Secrets, you can either:
+In the app settings → Secrets, add **all four** required variables.
 
-**Option A — JSON string** (same as local):
 ```toml
+ANTHROPIC_API_KEY = "sk-ant-..."
+APP_PASSWORD = "your_password"
+USE_CACHE = "false"
 GOOGLE_SHEET_ID = "1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgVE2upms"
 GOOGLE_SERVICE_ACCOUNT_JSON = '{"type":"service_account","project_id":"..."}'
 ```
 
-**Option B — TOML table** (easier to read, no escaping required):
-```toml
-GOOGLE_SHEET_ID = "1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgVE2upms"
+Paste the **entire contents** of the downloaded JSON key file as the value
+of `GOOGLE_SERVICE_ACCOUNT_JSON`.
 
-[gcp_service_account]
-type = "service_account"
-project_id = "my-project"
-private_key_id = "key-id"
-private_key = "-----BEGIN RSA PRIVATE KEY-----\n...\n-----END RSA PRIVATE KEY-----\n"
-client_email = "name@my-project.iam.gserviceaccount.com"
-client_id = "123456789"
-auth_uri = "https://accounts.google.com/o/oauth2/auth"
-token_uri = "https://oauth2.googleapis.com/token"
-auth_provider_x509_cert_url = "https://www.googleapis.com/oauth2/v1/certs"
-client_x509_cert_url = "https://www.googleapis.com/robot/v1/metadata/x509/name%40my-project.iam.gserviceaccount.com"
-```
-
-If neither `GOOGLE_SHEET_ID` nor credentials are set, Sheets logging is
-silently skipped — the app still works and logs locally.
+If `GOOGLE_SHEET_ID` or credentials are omitted, Sheets logging is silently
+skipped — the app still works and logs locally.
 
 ### Sheet columns
 
@@ -226,13 +204,13 @@ Correlate by `"turn"` (0-indexed per session).
 
 ---
 
-## Production Requirements (Stanford server rebuild)
+## Production Requirements 
 
 When migrating to the Stanford production server, **only `app.py` is replaced**.
 The `core/` package, `data/catalog.json`, and `prompts/system_prompt.md` move
 over untouched.
 
-The production shell must implement:
+The production shell implements:
 
 1. **Stanford Auth (SUNet)** — replace the `APP_PASSWORD` form with Stanford
    SSO / Shibboleth. The eval password gate is removed entirely.
@@ -245,7 +223,6 @@ The production shell must implement:
    sufficient to prevent bot/anonymous traffic during eval.
 
 3. **Page embed** — integrate the app into the existing Legal Databases page
-   at the appropriate URL under `law.stanford.edu`.
 
 No changes to `core/catalog.py`, `core/finder.py`, `catalog.json`, or
 `system_prompt.md` are expected or required for the production migration.
