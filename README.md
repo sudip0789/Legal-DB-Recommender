@@ -12,7 +12,7 @@ collection, given a user's research question.
 project/
   core/               ← portable; no Streamlit dependency
     catalog.py        ← loads catalog.json, builds system prompt once at startup
-    finder.py         ← Anthropic API call, history trimming, cache toggle
+    finder.py         ← Anthropic API call, history trimming
   data/
     catalog.json      ← database catalog (source of truth)
   prompts/
@@ -38,14 +38,14 @@ Edit `.env` (already in the repo root with placeholder values):
 ```
 ANTHROPIC_API_KEY=sk-ant-...          # your Anthropic API key
 APP_PASSWORD=your_shared_password     # password shown to eval users
-USE_CACHE=false                       # set true to enable prompt caching
+USE_CACHE=true                       # set false to disable prompt caching
 ```
 
 | Variable | Required | Default | Description |
 |---|---|---|---|
 | `ANTHROPIC_API_KEY` | Yes | — | Anthropic API key |
 | `APP_PASSWORD` | Yes | — | Shared password for the eval access gate |
-| `USE_CACHE` | No | `false` | Enable Anthropic ephemeral prompt caching |
+| `USE_CACHE` | Yes | `true` | Enable Anthropic ephemeral prompt caching |
 | `GOOGLE_SHEET_ID` | No | — | Spreadsheet ID for consolidated logging (see below) |
 | `GOOGLE_SERVICE_ACCOUNT_JSON` | No | — | Service account credentials JSON string (see below) |
 
@@ -78,97 +78,12 @@ Open [http://localhost:8501](http://localhost:8501).
    (see the Google Sheets section below for the full secrets block including
    `GOOGLE_SHEET_ID` and `GOOGLE_SERVICE_ACCOUNT_JSON`).
 
-4. Deploy. Share the URL with eval participants.
+4. Deploy
 
 ### ⚠️ Ephemeral log caveat
 
 Streamlit Community Cloud's filesystem is **ephemeral** — `logs/qa_log.jsonl`
-is lost on app restart or sleep. Set up Google Sheets logging (below) to
-retain eval data persistently across all testers and restarts.
-
----
-
-## Google Sheets Logging (consolidated, persistent)
-
-Every Q&A and feedback event is appended to a shared Google Sheet in addition
-to the local JSONL. This means all testers — regardless of which machine they
-use or which instance of the app they hit — write to the same spreadsheet. It
-also survives Streamlit Cloud restarts.
-
-### One-time setup
-
-1. **Create a Google Cloud project** (or reuse one) at
-   [console.cloud.google.com](https://console.cloud.google.com).
-
-2. **Enable the Google Sheets API** — search "Sheets API" in the library and
-   click Enable.
-
-3. **Create a service account** — IAM & Admin → Service Accounts → Create. No
-   special roles needed. Generate a JSON key and download it.
-
-4. **Create a Google Sheet** and copy its ID from the URL:
-   `https://docs.google.com/spreadsheets/d/SPREADSHEET_ID/edit`
-
-5. **Share the sheet** with the service account's email address
-   (found in the JSON key file as `client_email`), granting **Editor** access.
-
-6. **Add the credentials to `.env`:**
-
-   ```
-   GOOGLE_SHEET_ID=1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgVE2upms
-   GOOGLE_SERVICE_ACCOUNT_JSON={"type":"service_account","project_id":"..."}
-   ```
-
-### For Streamlit Community Cloud
-
-In the app settings → Secrets, add **all four** required variables.
-
-```toml
-ANTHROPIC_API_KEY = "sk-ant-..."
-APP_PASSWORD = "your_password"
-USE_CACHE = "false"
-GOOGLE_SHEET_ID = "1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgVE2upms"
-GOOGLE_SERVICE_ACCOUNT_JSON = '{"type":"service_account","project_id":"..."}'
-```
-
-Paste the **entire contents** of the downloaded JSON key file as the value
-of `GOOGLE_SERVICE_ACCOUNT_JSON`.
-
-If `GOOGLE_SHEET_ID` or credentials are omitted, Sheets logging is silently
-skipped — the app still works and logs locally.
-
-### Sheet columns
-
-| Column | Answer records | Feedback records |
-|---|---|---|
-| timestamp | ✓ | ✓ |
-| type | `answer` | `feedback` |
-| turn | ✓ | ✓ |
-| question | ✓ | |
-| answer | ✓ | |
-| use_cache | ✓ | |
-| input_tokens | ✓ | |
-| output_tokens | ✓ | |
-| cache_creation_tokens | ✓ | |
-| cache_read_tokens | ✓ | |
-| rating | | `up` / `down` |
-| note | | ✓ (if provided) |
-
-Correlate answer and feedback rows by matching `turn` values within a session.
-
----
-
-## Prompt Caching
-
-When `USE_CACHE=true`, the system prompt + full catalog is sent with
-`cache_control: {type: "ephemeral"}`. The prefix is built **once at import
-time** (`core/catalog.py`) and is byte-identical across all requests — a
-requirement for Anthropic cache hits.
-
-- Ephemeral TTL: 5 minutes, sliding (resets on each cache hit).
-- The sidebar checkbox lets evaluators toggle caching live to compare costs.
-- Each Q&A log record includes `cache_creation_input_tokens` and
-  `cache_read_input_tokens` so you can measure the savings.
+is lost on app restart or sleep. Set up Google Sheets logging to retain eval data persistently across all testers and restarts.
 
 ---
 
@@ -201,6 +116,40 @@ requirement for Anthropic cache hits.
 ```
 
 Correlate by `"turn"` (0-indexed per session).
+
+---
+
+### Sheet columns
+
+| Column | Answer records | Feedback records |
+|---|---|---|
+| timestamp | ✓ | ✓ |
+| type | `answer` | `feedback` |
+| turn | ✓ | ✓ |
+| question | ✓ | |
+| answer | ✓ | |
+| use_cache | ✓ | |
+| input_tokens | ✓ | |
+| output_tokens | ✓ | |
+| cache_creation_tokens | ✓ | |
+| cache_read_tokens | ✓ | |
+| rating | | `up` / `down` |
+| note | | ✓ (if provided) |
+
+Correlate answer and feedback rows by matching `turn` values within a session.
+
+---
+
+## Prompt Caching
+
+When `USE_CACHE=true`, the system prompt + full catalog is sent with
+`cache_control: {type: "ephemeral"}`. The prefix is built **once at import
+time** (`core/catalog.py`) and is byte-identical across all requests — a
+requirement for Anthropic cache hits.
+
+- Ephemeral TTL: 5 minutes, sliding (resets on each cache hit).
+- Each Q&A log record includes `cache_creation_input_tokens` and
+  `cache_read_input_tokens` so you can measure the savings.
 
 ---
 

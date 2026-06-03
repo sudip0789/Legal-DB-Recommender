@@ -137,11 +137,6 @@ def _init_state() -> None:
         if key not in st.session_state:
             st.session_state[key] = value
 
-    # Cache toggle: initialise from env var, then track via its widget key.
-    if "use_cache" not in st.session_state:
-        st.session_state.use_cache = (
-            os.getenv("USE_CACHE", "false").lower() == "true"
-        )
 
 
 def _reset() -> None:
@@ -242,17 +237,6 @@ def main() -> None:
     # Sidebar
     # ------------------------------------------------------------------
     with st.sidebar:
-        st.header("Options")
-        st.checkbox(
-            "Prompt caching",
-            key="use_cache",
-            help=(
-                "Caches the system prompt + catalog (ephemeral, 5-min TTL). "
-                "Reduces latency and cost on subsequent questions. "
-                "Toggle to compare usage stats in the log."
-            ),
-        )
-        st.divider()
         if st.button("New search", use_container_width=True):
             _reset()
             st.rerun()
@@ -274,7 +258,7 @@ def main() -> None:
     # ------------------------------------------------------------------
     # Turn cap
     # ------------------------------------------------------------------
-    if st.session_state.turns >= 10:
+    if st.session_state.turns >= 20:
         st.info("Starting a fresh search keeps results sharp — click to reset")
         if st.button("Reset search"):
             _reset()
@@ -311,7 +295,7 @@ def main() -> None:
     with st.chat_message("assistant"):
         with st.spinner("Looking up databases…"):
             answer, trimmed_sent, usage = get_answer(
-                st.session_state.history, st.session_state.use_cache
+                st.session_state.history, use_cache=True
             )
         st.markdown(answer)
 
@@ -325,7 +309,7 @@ def main() -> None:
         "question": user_input,
         "trimmed_history_sent": trimmed_sent,
         "answer": answer,
-        "use_cache": st.session_state.use_cache,
+        "use_cache": True,
         "usage": usage,
     })
 
