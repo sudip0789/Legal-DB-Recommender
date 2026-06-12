@@ -8,4 +8,5 @@ __pycache__/
 .streamlit/secrets.toml
 .claude
 CLAUDE_CODE_BUILD_SPEC.md
-
+docs/MODEL_DESCRIPTION.md
+pressure_test_questions.xlsx

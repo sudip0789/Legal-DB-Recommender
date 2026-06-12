@@ -16,6 +16,7 @@ from pathlib import Path
 import gspread
 import streamlit as st
 from dotenv import load_dotenv
+from gspread.utils import rowcol_to_a1
 from google.oauth2.service_account import Credentials as _GCreds
 
 load_dotenv()
@@ -46,7 +47,7 @@ _SHEET_HEADERS = [
     "timestamp", "turn", "model", "question", "answer",
     "use_cache", "input_tokens", "output_tokens",
     "cache_creation_tokens", "cache_read_tokens", "cached_input_tokens",
-    "feedback", "comment",
+    "feedback", "comment", "initial_response",
 ]
 _FEEDBACK_COL = _SHEET_HEADERS.index("feedback") + 1  # 1-based for gspread
 _COMMENT_COL = _SHEET_HEADERS.index("comment") + 1
@@ -86,9 +87,9 @@ def _open_log_worksheet(sa_info: dict, sheet_id: str):
 
     header = ws.row_values(1)
     if not header:
-        ws.append_row(_SHEET_HEADERS, value_input_option="USER_ENTERED")
+        ws.append_row(_SHEET_HEADERS, value_input_option="RAW")
     elif header != _SHEET_HEADERS:
-        ws.update([_SHEET_HEADERS], "A1", value_input_option="USER_ENTERED")
+        ws.update([_SHEET_HEADERS], "A1", value_input_option="RAW")
     return ws
 
 
@@ -130,6 +131,7 @@ def _sheet_row(record: dict) -> list:
         u.get("cached_input_tokens", ""),
         "",  # feedback
         "",  # comment
+        record.get("initial_response", ""),
     ]
 
 
@@ -158,7 +160,7 @@ def _append_log(record: dict) -> None:
 
         if record.get("type") == "answer":
             result = ws.append_row(
-                _sheet_row(record), value_input_option="USER_ENTERED"
+                _sheet_row(record), value_input_option="RAW"
             )
             row = _appended_row_number(result)
             if row is not None:
@@ -168,11 +170,16 @@ def _append_log(record: dict) -> None:
             # Fill the feedback/comment cells on this turn's existing row.
             row = st.session_state.sheet_row_by_turn.get(record.get("turn"))
             if row is not None:
-                ws.update_cell(
-                    row, _FEEDBACK_COL,
-                    _RATING_DISPLAY.get(record.get("rating", ""), ""),
+                ws.update(
+                    [[_RATING_DISPLAY.get(record.get("rating", ""), "")]],
+                    rowcol_to_a1(row, _FEEDBACK_COL),
+                    value_input_option="RAW",
                 )
-                ws.update_cell(row, _COMMENT_COL, record.get("note", ""))
+                ws.update(
+                    [[record.get("note", "")]],
+                    rowcol_to_a1(row, _COMMENT_COL),
+                    value_input_option="RAW",
+                )
     except Exception as exc:
         import sys
         print(f"[sheets] sync failed: {exc}", file=sys.stderr)
@@ -339,7 +346,7 @@ def main() -> None:
     # ------------------------------------------------------------------
     # Turn cap
     # ------------------------------------------------------------------
-    if st.session_state.turns >= 20:
+    if st.session_state.turns >= 12:
         st.info("Starting a fresh search keeps results sharp — click to reset")
         if st.button("Reset search"):
             _reset()
@@ -375,7 +382,7 @@ def main() -> None:
 
     with st.chat_message("assistant"):
         with st.spinner("Looking up databases…"):
-            answer, trimmed_sent, usage = get_answer(
+            answer, trimmed_sent, usage, initial_response = get_answer(
                 st.session_state.history,
                 use_cache=True,
                 model=st.session_state.model,
@@ -396,6 +403,9 @@ def main() -> None:
         "usage": usage,
         "model": st.session_state.model,
         "provider": usage.get("provider", ""),
+        # Only record the first draft when the guardrail actually changed the
+        # answer (regeneration or fallback); blank when it passed unchanged.
+        "initial_response": "" if initial_response == answer else initial_response,
     })
 
     st.rerun()

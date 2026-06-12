@@ -114,9 +114,15 @@ is lost on app restart or sleep. Set up Google Sheets logging to retain eval dat
     "provider": "anthropic"
   },
   "model": "claude-opus-4-8",
-  "provider": "anthropic"
+  "provider": "anthropic",
+  "initial_response": "..."
 }
 ```
+
+`initial_response` is the model's first draft before the output guardrail acts.
+It is **blank when the draft passed unchanged**, and holds the original draft
+only when the verifier triggered a regeneration or the deterministic safe
+fallback (see Output Guardrail below).
 
 **`"type": "feedback"`** — written when a 👍 or 👎 is submitted:
 ```json
@@ -145,6 +151,7 @@ Correlate by `"turn"` (0-indexed per session).
 | cached_input_tokens | OpenAI cached input tokens |
 | feedback | 👍 / 👎, filled in when the user rates (blank if not rated) |
 | comment | The user's 👎 note, filled in with the feedback (blank otherwise) |
+| initial_response | The model's first draft, before the guardrail acted. **Blank when the draft passed unchanged**; holds the original draft when the verifier triggered a regeneration or the safe fallback |
 
 ---
 
