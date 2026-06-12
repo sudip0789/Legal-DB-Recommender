@@ -12,7 +12,7 @@ collection, given a user's research question.
 project/
   core/               ← portable; no Streamlit dependency
     catalog.py        ← loads catalog.json, builds system prompt once at startup
-    finder.py         ← Anthropic API call, history trimming
+    finder.py         ← Anthropic/OpenAI API calls, provider routing, history trimming
   data/
     catalog.json      ← database catalog (source of truth)
   prompts/
@@ -37,24 +37,28 @@ Edit `.env` (already in the repo root with placeholder values):
 
 ```
 ANTHROPIC_API_KEY=sk-ant-...          # your Anthropic API key
+OPENAI_API_KEY=sk-...                 # your OpenAI API key
 APP_PASSWORD=your_shared_password     # password shown to eval users
 USE_CACHE=true                       # set false to disable prompt caching
 ```
 
 | Variable | Required | Default | Description |
 |---|---|---|---|
-| `ANTHROPIC_API_KEY` | Yes | — | Anthropic API key |
+| `ANTHROPIC_API_KEY` | Yes | — | Anthropic API key for Claude models |
+| `OPENAI_API_KEY` | Yes | — | OpenAI API key for GPT models |
 | `APP_PASSWORD` | Yes | — | Shared password for the eval access gate |
-| `USE_CACHE` | Yes | `true` | Enable Anthropic ephemeral prompt caching |
+| `USE_CACHE` | Yes | `true` | Enable provider prompt caching |
 | `GOOGLE_SHEET_ID` | No | — | Spreadsheet ID for consolidated logging (see below) |
 | `GOOGLE_SERVICE_ACCOUNT_JSON` | No | — | Service account credentials JSON string (see below) |
 
 ### 3. ⚠️ Set an API spending limit (manual step — required before sharing)
 
 The eval app has no rate limiting by design (the password gate is sufficient).
-Before sharing the URL with evaluators, set a **monthly spending limit** on your
-API key in the [Anthropic Console](https://console.anthropic.com/) → API Keys →
-your key → Spending Limits. This caps cost exposure if the password leaks.
+Before sharing the URL with evaluators, set **monthly spending limits** on your
+provider API keys. For Anthropic, use the
+[Anthropic Console](https://console.anthropic.com/) → API Keys → your key →
+Spending Limits. For OpenAI, use the platform billing/limits settings. This
+caps cost exposure if the password leaks.
 
 ### 4. Run
 
@@ -100,13 +104,17 @@ is lost on app restart or sleep. Set up Google Sheets logging to retain eval dat
   "question": "...",
   "trimmed_history_sent": [...],
   "answer": "...",
-  "use_cache": false,
+  "use_cache": true,
   "usage": {
     "input_tokens": 1234,
     "output_tokens": 87,
     "cache_creation_input_tokens": 0,
-    "cache_read_input_tokens": 0
-  }
+    "cache_read_input_tokens": 0,
+    "cached_input_tokens": 0,
+    "provider": "anthropic"
+  },
+  "model": "claude-opus-4-8",
+  "provider": "anthropic"
 }
 ```
 
@@ -121,43 +129,39 @@ Correlate by `"turn"` (0-indexed per session).
 
 ### Sheet columns
 
-| Column | Answer records | Feedback records |
-|---|---|---|
-| timestamp | ✓ | ✓ |
-| type | `answer` | `feedback` |
-| turn | ✓ | ✓ |
-| question | ✓ | |
-| answer | ✓ | |
-| use_cache | ✓ | |
-| input_tokens | ✓ | |
-| output_tokens | ✓ | |
-| cache_creation_tokens | ✓ | |
-| cache_read_tokens | ✓ | |
-| rating | | `up` / `down` |
-| note | | ✓ (if provided) |
 
-Correlate answer and feedback rows by matching `turn` values within a session.
+| Column | Holds |
+|---|---|
+| timestamp | When the answer was logged (UTC, ISO 8601) |
+| turn | 0-indexed turn within the search session |
+| model | Model ID used for the answer (e.g. `claude-opus-4-8`) |
+| question | The user's question |
+| answer | The assistant's answer |
+| use_cache | Whether prompt caching was requested |
+| input_tokens | Uncached input tokens |
+| output_tokens | Output tokens |
+| cache_creation_tokens | Anthropic cache-write tokens |
+| cache_read_tokens | Anthropic cache-read tokens |
+| cached_input_tokens | OpenAI cached input tokens |
+| feedback | 👍 / 👎, filled in when the user rates (blank if not rated) |
+| comment | The user's 👎 note, filled in with the feedback (blank otherwise) |
 
 ---
 
 ## Prompt Caching
 
-When `USE_CACHE=true`, the system prompt + full catalog is sent with
-`cache_control: {type: "ephemeral"}`. The prefix is built **once at import
-time** (`core/catalog.py`) and is byte-identical across all requests — a
-requirement for Anthropic cache hits.
+The system prompt + full catalog is built **once at import time**
+(`core/catalog.py`) and remains byte-identical across requests. Each search is pinned to one model because provider prompt caches are model-specific.
 
-- Ephemeral TTL: 5 minutes, sliding (resets on each cache hit).
-- Each Q&A log record includes `cache_creation_input_tokens` and
-  `cache_read_input_tokens` so you can measure the savings.
+Each Q&A log record includes Anthropic cache fields
+(`cache_creation_input_tokens`, `cache_read_input_tokens`) and OpenAI cache hits (`cached_input_tokens`) so you can measure the savings.
 
 ---
 
 ## Production Requirements 
 
 When migrating to the Stanford production server, **only `app.py` is replaced**.
-The `core/` package, `data/catalog.json`, and `prompts/system_prompt.md` move
-over untouched.
+The `core/` package, `data/catalog.json`, and `prompts/system_prompt.md` move over untouched.
 
 The production shell implements:
 
@@ -168,8 +172,7 @@ The production shell implements:
    - 10 requests per minute per user
    - 100 requests per hour per user
 
-   The eval shell intentionally omits rate limiting; the password gate is
-   sufficient to prevent bot/anonymous traffic during eval.
+   The eval shell intentionally omits rate limiting; the password gate is sufficient to prevent bot/anonymous traffic during eval.
 
 3. **Page embed** — integrate the app into the existing Legal Databases page
 

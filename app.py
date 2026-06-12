@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import json
 import os
+import re
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -19,7 +20,11 @@ from google.oauth2.service_account import Credentials as _GCreds
 
 load_dotenv()
 
-from core.finder import get_answer  # noqa: E402 — must follow load_dotenv()
+from core.finder import (  # noqa: E402 — must follow load_dotenv()
+    DEFAULT_MODEL,
+    MODELS,
+    get_answer,
+)
 
 # ---------------------------------------------------------------------------
 # Logging — local JSONL + optional Google Sheets
@@ -29,51 +34,78 @@ _LOG_DIR.mkdir(exist_ok=True)
 _LOG_FILE = _LOG_DIR / "qa_log.jsonl"
 
 _GS_SCOPES = ["https://www.googleapis.com/auth/spreadsheets"]
+
+# Worksheet (tab) within the spreadsheet to log into. A dedicated tab keeps the
+# new one-row-per-turn schema separate from any older data on other tabs.
+_SHEET_TAB = "latest version"
+
+# One row per answered turn. Feedback is no longer a separate row: the `feedback`
+# and `comment` cells on the answer's own row are filled in later, in place,
+# when the user rates the answer.
 _SHEET_HEADERS = [
-    "timestamp", "type", "turn", "question", "answer",
+    "timestamp", "turn", "model", "question", "answer",
     "use_cache", "input_tokens", "output_tokens",
-    "cache_creation_tokens", "cache_read_tokens", "rating", "note",
+    "cache_creation_tokens", "cache_read_tokens", "cached_input_tokens",
+    "feedback", "comment",
 ]
+_FEEDBACK_COL = _SHEET_HEADERS.index("feedback") + 1  # 1-based for gspread
+_COMMENT_COL = _SHEET_HEADERS.index("comment") + 1
+_RATING_DISPLAY = {"up": "👍", "down": "👎"}
+
+
+def _resolve_service_account() -> dict | None:
+    """Service-account info from (in order): GOOGLE_SERVICE_ACCOUNT_JSON env var,
+    then st.secrets["gcp_service_account"]. Returns None if neither is present."""
+    creds_json = os.getenv("GOOGLE_SERVICE_ACCOUNT_JSON", "")
+    if creds_json:
+        try:
+            return json.loads(creds_json)
+        except json.JSONDecodeError:
+            pass
+    try:
+        return dict(st.secrets["gcp_service_account"])
+    except (KeyError, FileNotFoundError):
+        return None
+
+
+def _open_log_worksheet(sa_info: dict, sheet_id: str):
+    """Open (creating if needed) the log tab and guarantee row 1 holds the
+    current headers. Pure gspread — no Streamlit — so test scripts can reuse it.
+
+    Header handling is idempotent: written when the tab is empty, and overwritten
+    in place if an older/short header is found (so a stale schema self-heals
+    instead of silently misaligning new rows)."""
+    creds = _GCreds.from_service_account_info(sa_info, scopes=_GS_SCOPES)
+    spreadsheet = gspread.authorize(creds).open_by_key(sheet_id)
+    try:
+        ws = spreadsheet.worksheet(_SHEET_TAB)
+    except gspread.WorksheetNotFound:
+        ws = spreadsheet.add_worksheet(
+            title=_SHEET_TAB, rows=1000, cols=len(_SHEET_HEADERS)
+        )
+
+    header = ws.row_values(1)
+    if not header:
+        ws.append_row(_SHEET_HEADERS, value_input_option="USER_ENTERED")
+    elif header != _SHEET_HEADERS:
+        ws.update([_SHEET_HEADERS], "A1", value_input_option="USER_ENTERED")
+    return ws
 
 
 @st.cache_resource
 def _get_sheet():
-    """
-    Returns the first worksheet of the configured Google Sheet, or None.
-    Cached for the lifetime of the Streamlit server process.
-    Credentials are read from (in order):
-      1. GOOGLE_SERVICE_ACCOUNT_JSON env var — full service-account JSON as a string.
-      2. st.secrets["gcp_service_account"] — TOML table in Streamlit Cloud Secrets.
-    Also requires GOOGLE_SHEET_ID env var (the spreadsheet ID from its URL).
-    """
+    """Streamlit-cached worksheet handle for the configured Google Sheet tab,
+    or None if logging isn't configured / setup fails.
+    Requires GOOGLE_SHEET_ID plus service-account creds (see
+    _resolve_service_account)."""
     sheet_id = os.getenv("GOOGLE_SHEET_ID", "")
     if not sheet_id:
         return None
-
-    sa_info = None
-
-    creds_json = os.getenv("GOOGLE_SERVICE_ACCOUNT_JSON", "")
-    if creds_json:
-        try:
-            sa_info = json.loads(creds_json)
-        except json.JSONDecodeError:
-            pass
-
-    if sa_info is None:
-        try:
-            sa_info = dict(st.secrets["gcp_service_account"])
-        except (KeyError, FileNotFoundError):
-            pass
-
+    sa_info = _resolve_service_account()
     if sa_info is None:
         return None
-
     try:
-        creds = _GCreds.from_service_account_info(sa_info, scopes=_GS_SCOPES)
-        ws = gspread.authorize(creds).open_by_key(sheet_id).sheet1
-        if not ws.row_values(1):  # write headers if the sheet is empty
-            ws.append_row(_SHEET_HEADERS)
-        return ws
+        return _open_log_worksheet(sa_info, sheet_id)
     except Exception as exc:
         import sys
         print(f"[sheets] setup failed: {exc}", file=sys.stderr)
@@ -81,45 +113,69 @@ def _get_sheet():
 
 
 def _sheet_row(record: dict) -> list:
-    if record.get("type") == "answer":
-        u = record.get("usage", {})
-        return [
-            record.get("timestamp", ""),
-            "answer",
-            record.get("turn", ""),
-            record.get("question", ""),
-            record.get("answer", ""),
-            str(record.get("use_cache", "")),
-            u.get("input_tokens", ""),
-            u.get("output_tokens", ""),
-            u.get("cache_creation_input_tokens", ""),
-            u.get("cache_read_input_tokens", ""),
-            "",
-            "",
-        ]
-    # feedback record
+    """Build the answer row. `feedback`/`comment` start blank and are filled in
+    place when the user rates (see _append_log)."""
+    u = record.get("usage", {})
     return [
         record.get("timestamp", ""),
-        "feedback",
         record.get("turn", ""),
-        "", "", "", "", "", "", "",
-        record.get("rating", ""),
-        record.get("note", ""),
+        record.get("model", ""),
+        record.get("question", ""),
+        record.get("answer", ""),
+        str(record.get("use_cache", "")),
+        u.get("input_tokens", ""),
+        u.get("output_tokens", ""),
+        u.get("cache_creation_input_tokens", ""),
+        u.get("cache_read_input_tokens", ""),
+        u.get("cached_input_tokens", ""),
+        "",  # feedback
+        "",  # comment
     ]
 
 
+def _appended_row_number(result: dict) -> int | None:
+    """Extract the 1-based row index from a gspread append_row() response
+    (e.g. ``'latest version'!A5:N5`` -> 5)."""
+    try:
+        updated_range = result["updates"]["updatedRange"]
+    except (KeyError, TypeError):
+        return None
+    match = re.search(r"![A-Z]+(\d+)", updated_range)
+    return int(match.group(1)) if match else None
+
+
 def _append_log(record: dict) -> None:
-    # Always write to local JSONL.
+    # Always write the raw event to local JSONL (append-only, lossless — old
+    # lines simply lack newer keys, which analysis treats as blank).
     with open(_LOG_FILE, "a", encoding="utf-8") as fh:
         fh.write(json.dumps(record, ensure_ascii=False) + "\n")
-    # Best-effort Google Sheets append — failures are logged to stderr, not shown to users.
+
+    # Best-effort Google Sheets sync — failures go to stderr, never to users.
     try:
         ws = _get_sheet()
-        if ws is not None:
-            ws.append_row(_sheet_row(record), value_input_option="USER_ENTERED")
+        if ws is None:
+            return
+
+        if record.get("type") == "answer":
+            result = ws.append_row(
+                _sheet_row(record), value_input_option="USER_ENTERED"
+            )
+            row = _appended_row_number(result)
+            if row is not None:
+                st.session_state.sheet_row_by_turn[record.get("turn")] = row
+
+        elif record.get("type") == "feedback":
+            # Fill the feedback/comment cells on this turn's existing row.
+            row = st.session_state.sheet_row_by_turn.get(record.get("turn"))
+            if row is not None:
+                ws.update_cell(
+                    row, _FEEDBACK_COL,
+                    _RATING_DISPLAY.get(record.get("rating", ""), ""),
+                )
+                ws.update_cell(row, _COMMENT_COL, record.get("note", ""))
     except Exception as exc:
         import sys
-        print(f"[sheets] append failed: {exc}", file=sys.stderr)
+        print(f"[sheets] sync failed: {exc}", file=sys.stderr)
 
 
 # ---------------------------------------------------------------------------
@@ -132,6 +188,8 @@ def _init_state() -> None:
         "turns": 0,          # number of answered questions
         "feedback": {},      # turn_idx -> {rating, note, submitted}
         "awaiting_note": None,  # turn_idx currently awaiting a 👎 note, or None
+        "model": DEFAULT_MODEL,  # pinned for the duration of one search
+        "sheet_row_by_turn": {},  # turn_idx -> sheet row number, for feedback
     }
     for key, value in defaults.items():
         if key not in st.session_state:
@@ -144,6 +202,9 @@ def _reset() -> None:
     st.session_state.turns = 0
     st.session_state.feedback = {}
     st.session_state.awaiting_note = None
+    # Clear row tracking so turn 0 of the next search doesn't update the
+    # previous search's row.
+    st.session_state.sheet_row_by_turn = {}
 
 
 # ---------------------------------------------------------------------------
@@ -237,6 +298,26 @@ def main() -> None:
     # Sidebar
     # ------------------------------------------------------------------
     with st.sidebar:
+        labels = list(MODELS.keys())
+        ids = [config.id for config in MODELS.values()]
+        current_label = labels[ids.index(st.session_state.model)]
+        conv_active = len(st.session_state.history) > 0
+
+        chosen = st.selectbox(
+            "Model",
+            labels,
+            index=ids.index(st.session_state.model),
+            disabled=conv_active,
+            help=(
+                "Each search is pinned to one model. Start a new search to switch models."
+            ),
+        )
+        if not conv_active:
+            # Only mutate the pinned model before the conversation begins.
+            st.session_state.model = MODELS[chosen].id
+        else:
+            st.caption(f"Pinned to **{current_label}** for this search.")
+
         if st.button("New search", use_container_width=True):
             _reset()
             st.rerun()
@@ -295,7 +376,9 @@ def main() -> None:
     with st.chat_message("assistant"):
         with st.spinner("Looking up databases…"):
             answer, trimmed_sent, usage = get_answer(
-                st.session_state.history, use_cache=True
+                st.session_state.history,
+                use_cache=True,
+                model=st.session_state.model,
             )
         st.markdown(answer)
 
@@ -311,6 +394,8 @@ def main() -> None:
         "answer": answer,
         "use_cache": True,
         "usage": usage,
+        "model": st.session_state.model,
+        "provider": usage.get("provider", ""),
     })
 
     st.rerun()
