@@ -111,10 +111,10 @@ MODELS: dict[str, ModelConfig] = {
         id="claude-opus-4-7",
         provider="anthropic",
     ),
-    "Fable 5": ModelConfig(
-        id="claude-fable-5",
-        provider="anthropic",
-    ),
+    # "Fable 5": ModelConfig(
+    #     id="claude-fable-5",
+    #     provider="anthropic",
+    # ),
     "Sonnet 4.6": ModelConfig(
         id="claude-sonnet-4-6",
         provider="anthropic",
@@ -327,7 +327,7 @@ def _get_anthropic_answer(
     # Fable 5's safety classifiers can return stop_reason "refusal" (HTTP 200,
     # empty or partial content), so don't assume content[0] is a text block.
     if response.stop_reason == "refusal":
-        answer = "Fable 5 can't help with that request. Please switch to a new model or reach out to our reference librarians at reference@law.stanford.edu or 650-725-0800"
+        answer = "I can't help with that request. Please switch to a new model or reach out to our reference librarians at reference@law.stanford.edu or 650-725-0800"
     else:
         answer = next(
             (b.text for b in response.content if b.type == "text"), ""
