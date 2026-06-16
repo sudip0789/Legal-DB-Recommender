@@ -346,7 +346,7 @@ def main() -> None:
     # ------------------------------------------------------------------
     # Turn cap
     # ------------------------------------------------------------------
-    if st.session_state.turns >= 12:
+    if st.session_state.turns >= 10:
         st.info("Starting a fresh search keeps results sharp — click to reset")
         if st.button("Reset search"):
             _reset()

@@ -136,16 +136,18 @@ MAX_TOKENS = 1024
 
 def _trim_history(history: list[dict]) -> list[dict]:
     """
-    Trim the message list to the last 2 complete exchanges plus the current
-    user message (≤ 5 messages total).  Always starts on a user turn.
+    Send the full conversation. The turn cap (see app.py) bounds a conversation
+    to a small number of exchanges, so the whole history fits comfortably within
+    model context limits and stays cheap — and the model keeps the full thread
+    when a user keeps digging into the same question. The cached system prefix is
+    unaffected, since growth happens after it.
+
+    Only guarantee the slice opens on a user message (an Anthropic requirement).
     """
-    if len(history) <= 5:
-        return history
-    trimmed = history[-5:]
-    # Guarantee the slice opens with a user message (Anthropic requirement).
-    while trimmed and trimmed[0]["role"] != "user":
-        trimmed = trimmed[1:]
-    return trimmed
+    messages = history
+    while messages and messages[0]["role"] != "user":
+        messages = messages[1:]
+    return messages
 
 
 def get_answer(
