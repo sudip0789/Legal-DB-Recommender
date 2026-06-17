@@ -434,7 +434,7 @@
         {
           "name": "LexisNexis",
           "description": "LexisNexis provides comprehensive access to U.S. federal and state statutes, regulations, case law, secondary legal materials, news, and the Shepard's citator through its Lexis Advance platform. Access to LexisNexis is limited to the current Stanford Law School community and requires personal, custom usernames and passwords from individual users. Please contact Reference.",
-          "link": "https://lawschool.lexis.com/"
+          "link": "https://signin.lexisnexis.com/lnaccess/app/signin?aci=ls"
         }
       ]
     },

@@ -221,27 +221,19 @@ def _render_feedback(turn_idx: int) -> None:
     fb: dict = st.session_state.feedback.get(turn_idx, {})
 
     if fb.get("submitted"):
-        if fb["rating"] == "up":
-            st.caption("👍 Thanks for the feedback!")
-        else:
-            note_text = f": {fb['note']}" if fb.get("note") else ""
-            st.caption(f"👎 Feedback recorded{note_text}")
+        icon = _RATING_DISPLAY.get(fb["rating"], "")
+        note_text = f": {fb['note']}" if fb.get("note") else ""
+        st.caption(f"{icon} Feedback recorded{note_text}")
         return
 
-    # Show 👍 / 👎 buttons side-by-side.
+    # Show 👍 / 👎 buttons side-by-side. Either one opens a comment box.
     col1, col2, _ = st.columns([1, 1, 10])
     with col1:
         if st.button("👍", key=f"up_{turn_idx}"):
             st.session_state.feedback[turn_idx] = {
-                "rating": "up", "note": "", "submitted": True
+                "rating": "up", "note": "", "submitted": False
             }
-            _append_log({
-                "type": "feedback",
-                "turn": turn_idx,
-                "rating": "up",
-                "note": "",
-                "timestamp": datetime.now(timezone.utc).isoformat(),
-            })
+            st.session_state.awaiting_note = turn_idx
             st.rerun()
     with col2:
         if st.button("👎", key=f"down_{turn_idx}"):
@@ -251,22 +243,24 @@ def _render_feedback(turn_idx: int) -> None:
             st.session_state.awaiting_note = turn_idx
             st.rerun()
 
-    # If this is the turn waiting for a 👎 improvement note, show input.
+    # If this is the turn waiting for a comment, show input.
     if st.session_state.awaiting_note == turn_idx:
-        note = st.text_area(
-            "How could this answer be better? (optional)",
-            key=f"note_{turn_idx}",
-            height=80,
+        rating = fb.get("rating", "down")
+        prompt = (
+            "What did you find helpful? (optional)"
+            if rating == "up"
+            else "How could this answer be better? (optional)"
         )
+        note = st.text_area(prompt, key=f"note_{turn_idx}", height=80)
         if st.button("Submit feedback", key=f"submit_note_{turn_idx}"):
             st.session_state.feedback[turn_idx] = {
-                "rating": "down", "note": note, "submitted": True
+                "rating": rating, "note": note, "submitted": True
             }
             st.session_state.awaiting_note = None
             _append_log({
                 "type": "feedback",
                 "turn": turn_idx,
-                "rating": "down",
+                "rating": rating,
                 "note": note,
                 "timestamp": datetime.now(timezone.utc).isoformat(),
             })
@@ -360,17 +354,18 @@ def main() -> None:
     if not user_input:
         return
 
-    # Flush any pending 👎 note (user moved on without submitting).
+    # Flush any pending comment (user moved on without submitting).
     aw = st.session_state.awaiting_note
     if aw is not None and not st.session_state.feedback.get(aw, {}).get("submitted"):
+        rating = st.session_state.feedback.get(aw, {}).get("rating", "down")
         st.session_state.feedback[aw] = {
-            "rating": "down", "note": "", "submitted": True
+            "rating": rating, "note": "", "submitted": True
         }
         st.session_state.awaiting_note = None
         _append_log({
             "type": "feedback",
             "turn": aw,
-            "rating": "down",
+            "rating": rating,
             "note": "",
             "timestamp": datetime.now(timezone.utc).isoformat(),
         })
