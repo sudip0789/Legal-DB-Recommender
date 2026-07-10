@@ -10,6 +10,7 @@ from __future__ import annotations
 import json
 import os
 import re
+import time
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -26,6 +27,7 @@ from core.finder import (  # noqa: E402 — must follow load_dotenv()
     MODELS,
     get_answer,
 )
+from core.rate_limit import check_and_record  # noqa: E402
 
 # ---------------------------------------------------------------------------
 # Logging — local JSONL + optional Google Sheets
@@ -197,6 +199,7 @@ def _init_state() -> None:
         "awaiting_note": None,  # turn_idx currently awaiting a 👎 note, or None
         "model": DEFAULT_MODEL,  # pinned for the duration of one search
         "sheet_row_by_turn": {},  # turn_idx -> sheet row number, for feedback
+        "req_times": [],     # monotonic timestamps of accepted requests (rate limit)
     }
     for key, value in defaults.items():
         if key not in st.session_state:
@@ -279,15 +282,19 @@ def main() -> None:
     _init_state()
 
     # ------------------------------------------------------------------
-    # Password gate
+    # Password gate (optional)
     # ------------------------------------------------------------------
-    if not st.session_state.authenticated:
+    # The gate is active only when APP_PASSWORD is set. Leave it unset (locally
+    # in .env, and in Streamlit Cloud → Settings → Secrets) to make the app
+    # public — users then land directly on the chatbot. Set it again (or wire in
+    # Stanford SSO) to re-lock, with no code changes.
+    correct = os.getenv("APP_PASSWORD", "").strip()
+    if correct and not st.session_state.authenticated:
         st.title("Stanford Law Library Database Finder")
         with st.form("login_form"):
             password = st.text_input("Access password", type="password")
             submitted = st.form_submit_button("Enter")
         if submitted:
-            correct = os.getenv("APP_PASSWORD", "")
             if password == correct:
                 st.session_state.authenticated = True
                 st.rerun()
@@ -352,6 +359,31 @@ def main() -> None:
     # ------------------------------------------------------------------
     user_input = st.chat_input("Describe your research question…")
     if not user_input:
+        return
+
+    # ------------------------------------------------------------------
+    # Rate limit (per browser session): 10/min, 100/hour. Checked before any
+    # LLM call so a blocked request costs nothing. req_times deliberately
+    # survives _reset(), so "New search" can't be used to bypass the limit.
+    # ------------------------------------------------------------------
+    allowed, limit = check_and_record(st.session_state.req_times, time.monotonic())
+    if not allowed:
+        if limit == "minute":
+            st.warning(
+                "⏳ You're sending questions too quickly. "
+                "Please pause for a moment and try again."
+            )
+        else:
+            st.warning(
+                "⏳ You've reached the hourly limit (100 questions). "
+                "Please try again later."
+            )
+        _append_log({
+            "type": "rate_limited",
+            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "limit": limit,
+            "question": user_input,
+        })
         return
 
     # Flush any pending comment (user moved on without submitting).
