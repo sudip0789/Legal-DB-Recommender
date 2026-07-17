@@ -2,7 +2,11 @@
 
 AI assistant that recommends the right legal-research database from the
 [Robert Crown Law Library](https://law.stanford.edu/robert-crown-law-library/)
-collection, given a user's research question.
+collection, given a user's research question. When a question matches one of
+the library's [Research Guides](https://law.stanford.edu/robert-crown-law-library/research-guides/)
+(LibGuides), the tool also suggests the guide — as a one-line add-on to the
+database recommendation, or as the lead referral for pure research-process
+questions ("how do I do a preemption check?").
 
 ---
 
@@ -11,12 +15,13 @@ collection, given a user's research question.
 ```
 project/
   core/               ← portable; no Streamlit dependency
-    catalog.py        ← loads catalog.json, builds system prompt once at startup
+    catalog.py        ← loads catalog.json + research_guides.json, builds system prompt once at startup
     finder.py         ← Anthropic/OpenAI API calls, provider routing, history trimming
   data/
-    catalog.json      ← database catalog (source of truth)
+    catalog.json           ← database catalog (source of truth)
+    research_guides.json   ← Research Guides (LibGuides) with routing keywords
   prompts/
-    system_prompt.md  ← prompt template ({{CATALOG_JSON}} replaced at startup)
+    system_prompt.md  ← prompt template ({{CATALOG_JSON}} / {{GUIDES_JSON}} replaced at startup)
   app.py              ← Streamlit shell (eval only — password gate, UI, logging)
   logs/               ← created at runtime; JSONL eval log
 ```
@@ -168,7 +173,8 @@ Each Q&A log record includes Anthropic cache fields
 ## Production Requirements 
 
 When migrating to the Stanford production server, **only `app.py` is replaced**.
-The `core/` package, `data/catalog.json`, and `prompts/system_prompt.md` move over untouched.
+The `core/` package, `data/catalog.json`, `data/research_guides.json`, and
+`prompts/system_prompt.md` move over untouched.
 
 The production shell implements:
 
@@ -183,5 +189,20 @@ The production shell implements:
 
 3. **Page embed** — integrate the app into the existing Legal Databases page
 
-No changes to `core/catalog.py`, `core/finder.py`, `catalog.json`, or
-`system_prompt.md` are expected or required for the production migration.
+No changes to `core/catalog.py`, `core/finder.py`, `catalog.json`,
+`research_guides.json`, or `system_prompt.md` are expected or required for the
+production migration.
+
+---
+
+## Research Guides Data
+
+`data/research_guides.json` lists the ~21 Research Guides the tool may suggest,
+each with a `name`, `link` (guides.law.stanford.edu), and librarian-curated
+`keywords` used as routing hints (not exact-match triggers). It is generated
+from the librarian keyword document kept alongside it in `data/`. Guide links
+are whitelisted in the output guardrail; any guide URL not in this file is
+blocked from responses.
+
+Maintenance note: the **Summer Research Videos & Handbook** guide has the year
+baked into its name and URL (`/summer26`) — update it annually.

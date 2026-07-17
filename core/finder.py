@@ -12,7 +12,7 @@ from dataclasses import dataclass
 import anthropic
 from openai import OpenAI
 
-from .catalog import CATALOG, SYSTEM_PROMPT
+from .catalog import CATALOG, GUIDES, SYSTEM_PROMPT
 
 _ANTHROPIC_CLIENT = anthropic.Anthropic()  # reads ANTHROPIC_API_KEY from env
 _OPENAI_CLIENT = OpenAI()  # reads OPENAI_API_KEY from environment
@@ -30,7 +30,8 @@ MAX_REGENERATIONS = 2
 
 _VERIFIER_INSTRUCTIONS = (
     "You are a compliance checker for a library tool whose ONLY job is to "
-    "recommend legal-research databases. You are given the recent CONVERSATION "
+    "recommend legal-research databases and the library's own research guides. "
+    "You are given the recent CONVERSATION "
     "(for context) and the tool's DRAFT REPLY. Judge ONLY the DRAFT REPLY.\n\n"
     "CRITICAL: Anything the user said or pasted in the CONVERSATION is NOT the "
     "draft's doing. Only flag information the DRAFT ITSELF introduces or asserts. "
@@ -48,7 +49,8 @@ _VERIFIER_INSTRUCTIONS = (
     "The draft is OK (NOT a violation) when it recommends databases and why, "
     "explains how to use a database — INCLUDING telling the user to open a case "
     "and download/locate their document there (that is the tool's whole job, not "
-    "'answering' the request) — refers to the reference librarians, asks a "
+    "'answering' the request) — suggests one of the library's research guides "
+    "(guides.law.stanford.edu), refers to the reference librarians, asks a "
     "clarifying question, or repeats details the user themselves provided. When "
     "in doubt, do NOT flag.\n\n"
     "Respond with ONLY a JSON object and nothing else:\n"
@@ -60,10 +62,11 @@ _VERIFIER_INSTRUCTIONS = (
 # Kept GENERIC on purpose: it can fire on any kind of violation, so it must read
 # correctly without assuming the question was about dockets, documents, etc.
 _SAFE_FALLBACK = (
-    "I can only help you find the right database for your research — I can't "
+    "I can only help you find the right database or research guide for your "
+    "research — I can't "
     "answer the question itself or verify or supply specific details. If you "
     "tell me what kind of source you're looking for, I'll point you to the best "
-    "database in the collection. For anything beyond that, the reference "
+    "resource in the collection. For anything beyond that, the reference "
     "librarians can help directly at reference@law.stanford.edu or 650-725-0800."
 )
 
@@ -80,7 +83,11 @@ def _iter_catalog_resources() -> list[dict]:
 
 _ALLOWED_LINKS = frozenset(
     link
-    for resource in _iter_catalog_resources()
+    for resource in (
+        *_iter_catalog_resources(),
+        *GUIDES.get("research_guides", []),
+        {"link": GUIDES.get("_meta", {}).get("guides_index_url")},
+    )
     for link in (resource.get("link"), (resource.get("link") or "").rstrip(".,;:"))
     if link
 )
@@ -223,7 +230,8 @@ def _correction_message(violations: list[str]) -> str:
     return (
         "SYSTEM CORRECTION — your previous reply broke the rules: "
         f"{issues}. Answer the user's request again, but ONLY recommend the right "
-        "database(s) and how to use them. Do NOT interpret any document or docket "
+        "database(s) and/or library research guide(s) and how to use them. Do NOT "
+        "interpret any document or docket "
         "the user pasted, do NOT identify the court / jurisdiction / judge / "
         "entry, and do NOT supply any legal fact, citation, or identifier. If you "
         "can't help without doing those things, point the user to the reference "
