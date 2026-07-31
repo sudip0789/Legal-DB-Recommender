@@ -108,6 +108,30 @@ class FinderProviderRoutingTest(unittest.TestCase):
         self.assertEqual(call_kwargs["model"], "gpt-5.5")
         self.assertEqual(call_kwargs["prompt_cache_retention"], "24h")
 
+    def test_gpt_56_sol_is_the_default_and_uses_24h_prompt_cache_retention(self):
+        openai_client = Mock()
+        openai_client.responses.create.return_value = SimpleNamespace(
+            output_text="openai answer",
+            usage=SimpleNamespace(
+                input_tokens=300,
+                output_tokens=40,
+                input_tokens_details={"cached_tokens": 128},
+            ),
+        )
+
+        with patch.object(finder, "_OPENAI_CLIENT", openai_client), patch.object(
+            finder, "_verify", return_value=_OK
+        ):
+            finder.get_answer(
+                [{"role": "user", "content": "Where should I search?"}],
+                use_cache=True,
+            )
+
+        self.assertEqual(finder.DEFAULT_MODEL, "gpt-5.6-sol")
+        call_kwargs = openai_client.responses.create.call_args.kwargs
+        self.assertEqual(call_kwargs["model"], "gpt-5.6-sol")
+        self.assertEqual(call_kwargs["prompt_cache_retention"], "24h")
+
     def test_gpt_54_mini_uses_automatic_openai_caching_without_retention_override(self):
         openai_client = Mock()
         openai_client.responses.create.return_value = SimpleNamespace(

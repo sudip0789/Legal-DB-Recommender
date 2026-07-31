@@ -17,7 +17,7 @@ from .catalog import CATALOG, GUIDES, SYSTEM_PROMPT
 _ANTHROPIC_CLIENT = anthropic.Anthropic()  # reads ANTHROPIC_API_KEY from env
 _OPENAI_CLIENT = OpenAI()  # reads OPENAI_API_KEY from environment
 
-DEFAULT_MODEL = "gpt-5.5"
+DEFAULT_MODEL = "gpt-5.6-sol"
 
 # --- Output guardrail (always-on verifier) ----------------------------------
 # After the main model drafts a reply, a cheap verifier model checks it against
@@ -105,6 +105,11 @@ class ModelConfig:
 # SYSTEM_PROMPT, but prompt caches are per-model/provider. The app therefore
 # pins one model per conversation (see app.py) so cache hits stay likely.
 MODELS: dict[str, ModelConfig] = {
+    "GPT-5.6 Sol": ModelConfig(
+        id="gpt-5.6-sol",
+        provider="openai",
+        openai_cache_retention="24h",
+    ),
     "GPT-5.5": ModelConfig(
         id="gpt-5.5",
         provider="openai",

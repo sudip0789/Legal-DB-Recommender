@@ -56,16 +56,8 @@ USE_CACHE=true                       # set false to disable prompt caching
 | `GOOGLE_SHEET_ID` | No | — | Spreadsheet ID for consolidated logging (see below) |
 | `GOOGLE_SERVICE_ACCOUNT_JSON` | No | — | Service account credentials JSON string (see below) |
 
-### 3. ⚠️ Set an API spending limit (manual step — required before sharing)
 
-The eval app has no rate limiting by design (the password gate is sufficient).
-Before sharing the URL with evaluators, set **monthly spending limits** on your
-provider API keys. For Anthropic, use the
-[Anthropic Console](https://console.anthropic.com/) → API Keys → your key →
-Spending Limits. For OpenAI, use the platform billing/limits settings. This
-caps cost exposure if the password leaks.
-
-### 4. Run
+### 3. Run
 
 ```bash
 streamlit run app.py
