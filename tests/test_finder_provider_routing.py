@@ -13,15 +13,28 @@ from core import finder  # noqa: E402
 _OK = {"ok": True, "violations": []}
 
 
-def _anthropic_response(text: str):
+def _anthropic_response(text: str, stop_reason: str = "end_turn"):
     return SimpleNamespace(
-        stop_reason="end_turn",
+        stop_reason=stop_reason,
         content=[SimpleNamespace(type="text", text=text)],
         usage=SimpleNamespace(
             input_tokens=100,
             output_tokens=20,
             cache_creation_input_tokens=80,
             cache_read_input_tokens=0,
+        ),
+    )
+
+
+def _openai_response(text: str, status: str = "completed", incomplete=None):
+    return SimpleNamespace(
+        output_text=text,
+        status=status,
+        incomplete_details=incomplete,
+        usage=SimpleNamespace(
+            input_tokens=300,
+            output_tokens=40,
+            input_tokens_details=SimpleNamespace(cached_tokens=256),
         ),
     )
 
@@ -277,6 +290,214 @@ class VerifierLoopTest(unittest.TestCase):
             )
 
         self.assertEqual(answer, "Use [Bloomberg Law](http://www.bloomberglaw.com/).")
+
+    def test_allows_the_librarys_own_index_pages(self):
+        anthropic_client = Mock()
+        anthropic_client.messages.create.return_value = _anthropic_response(
+            "The full set is on Stanford's [Legal Databases page]"
+            "(https://law.stanford.edu/robert-crown-law-library/legal-databases/), "
+            "and the [Research Guides]"
+            "(https://law.stanford.edu/robert-crown-law-library/research-guides/) index "
+            "covers the guides."
+        )
+
+        with patch.object(finder, "_ANTHROPIC_CLIENT", anthropic_client), patch.object(
+            finder, "_verify", return_value=_OK
+        ):
+            answer, _messages, _usage, _initial = finder.get_answer(
+                [{"role": "user", "content": "Just share the website link."}],
+                use_cache=True,
+                model="claude-opus-4-8",
+            )
+
+        # Regression: these were flagged as outside URLs, so the tool answered
+        # "give me the page" with the safe fallback instead of the page.
+        self.assertNotEqual(answer, finder._SAFE_FALLBACK)
+        self.assertIn("legal-databases/", answer)
+
+    def test_allows_section_anchor_on_the_legal_databases_page(self):
+        self.assertTrue(
+            finder._is_allowed_link(
+                "https://law.stanford.edu/robert-crown-law-library/"
+                "legal-databases/#greenwire"
+            )
+        )
+        self.assertFalse(finder._is_allowed_link("https://law.stanford.edu/other-page/"))
+
+
+class OutputBudgetTest(unittest.TestCase):
+    def test_openai_request_adds_reasoning_headroom_to_the_visible_budget(self):
+        openai_client = Mock()
+        openai_client.responses.create.return_value = _openai_response("answer")
+
+        with patch.object(finder, "_OPENAI_CLIENT", openai_client), patch.object(
+            finder, "_verify", return_value=_OK
+        ):
+            finder.get_answer(
+                [{"role": "user", "content": "q"}], use_cache=True, model="gpt-5.6-sol"
+            )
+
+        # Reasoning tokens share max_output_tokens on the Responses API, so the
+        # request budget must exceed the visible-text budget.
+        self.assertEqual(
+            openai_client.responses.create.call_args.kwargs["max_output_tokens"],
+            finder.MAX_TOKENS + finder._OPENAI_REASONING_HEADROOM,
+        )
+
+    def test_anthropic_request_uses_the_visible_budget_directly(self):
+        anthropic_client = Mock()
+        anthropic_client.messages.create.return_value = _anthropic_response("answer")
+
+        with patch.object(finder, "_ANTHROPIC_CLIENT", anthropic_client), patch.object(
+            finder, "_verify", return_value=_OK
+        ):
+            finder.get_answer(
+                [{"role": "user", "content": "q"}],
+                use_cache=True,
+                model="claude-opus-4-8",
+            )
+
+        self.assertEqual(
+            anthropic_client.messages.create.call_args.kwargs["max_tokens"],
+            finder.MAX_TOKENS,
+        )
+
+    def test_verifier_gets_its_own_budget(self):
+        openai_client = Mock()
+        openai_client.responses.create.return_value = _openai_response('{"ok": true}')
+
+        with patch.object(finder, "_OPENAI_CLIENT", openai_client):
+            finder._verify([{"role": "user", "content": "q"}], "draft")
+
+        self.assertEqual(
+            openai_client.responses.create.call_args.kwargs["max_output_tokens"],
+            finder.VERIFIER_MAX_TOKENS,
+        )
+
+
+class TruncationTest(unittest.TestCase):
+    """Truncation is detected from the provider's own stop signal, never guessed
+    from token counts, so a completed answer is never rewritten."""
+
+    _PARTIAL_LIST = (
+        "## Standalone databases\n\n"
+        "- [Bloomberg Law](http://www.bloomberglaw.com/)\n"
+        "- [Jus Mundi](https://jusmundi-com.ezproxy.law.stanford.edu/en)\n"
+        "- [WorldTradeLaw.net](https://www-worldtradelaw-net.ezproxy.law"
+    )
+
+    def test_anthropic_max_tokens_stop_is_repaired_and_disclosed(self):
+        anthropic_client = Mock()
+        anthropic_client.messages.create.return_value = _anthropic_response(
+            self._PARTIAL_LIST, stop_reason="max_tokens"
+        )
+
+        with patch.object(finder, "_ANTHROPIC_CLIENT", anthropic_client), patch.object(
+            finder, "_verify", return_value=_OK
+        ):
+            answer, _messages, usage, _initial = finder.get_answer(
+                [{"role": "user", "content": "list them all"}],
+                use_cache=True,
+                model="claude-opus-4-8",
+            )
+
+        self.assertTrue(usage["truncated"])
+        self.assertIn("reached its length limit", answer)
+        self.assertIn(finder._LEGAL_DATABASES_URL, answer)
+        # The chopped URL is gone — it would otherwise trip the link guardrail.
+        self.assertNotIn("www-worldtradelaw-net.ezproxy.law\n", answer)
+        self.assertNotIn("WorldTradeLaw", answer)
+        self.assertIn("Jus Mundi", answer)  # complete entries survive
+
+    def test_openai_incomplete_on_max_output_tokens_is_repaired(self):
+        openai_client = Mock()
+        openai_client.responses.create.return_value = _openai_response(
+            self._PARTIAL_LIST,
+            status="incomplete",
+            incomplete=SimpleNamespace(reason="max_output_tokens"),
+        )
+
+        with patch.object(finder, "_OPENAI_CLIENT", openai_client), patch.object(
+            finder, "_verify", return_value=_OK
+        ):
+            answer, _messages, usage, _initial = finder.get_answer(
+                [{"role": "user", "content": "list them all"}],
+                use_cache=True,
+                model="gpt-5.6-sol",
+            )
+
+        self.assertTrue(usage["truncated"])
+        self.assertIn("reached its length limit", answer)
+        self.assertNotIn("WorldTradeLaw", answer)
+
+    def test_truncation_survives_the_link_guardrail(self):
+        # The repaired reply carries the Legal Databases URL, so the guardrail
+        # must accept it rather than burn regenerations and fall back.
+        self.assertTrue(
+            finder._local_guardrail(finder._finish_truncated(self._PARTIAL_LIST))["ok"]
+        )
+        self.assertTrue(finder._local_guardrail(finder._TRUNCATED_EMPTY)["ok"])
+
+    def test_completed_answers_are_never_rewritten(self):
+        for label, client_attr, client, response in [
+            (
+                "anthropic",
+                "_ANTHROPIC_CLIENT",
+                Mock(),
+                _anthropic_response("Use [Bloomberg Law](http://www.bloomberglaw.com/)."),
+            ),
+            (
+                "openai",
+                "_OPENAI_CLIENT",
+                Mock(),
+                _openai_response("Use [Bloomberg Law](http://www.bloomberglaw.com/)."),
+            ),
+        ]:
+            with self.subTest(label):
+                if label == "anthropic":
+                    client.messages.create.return_value = response
+                    model = "claude-opus-4-8"
+                else:
+                    client.responses.create.return_value = response
+                    model = "gpt-5.6-sol"
+
+                with patch.object(finder, client_attr, client), patch.object(
+                    finder, "_verify", return_value=_OK
+                ):
+                    answer, _m, usage, _i = finder.get_answer(
+                        [{"role": "user", "content": "q"}], use_cache=True, model=model
+                    )
+
+                self.assertFalse(usage["truncated"])
+                self.assertEqual(
+                    answer, "Use [Bloomberg Law](http://www.bloomberglaw.com/)."
+                )
+
+    def test_non_length_incomplete_reason_is_not_treated_as_truncation(self):
+        response = _openai_response(
+            "partial", status="incomplete", incomplete={"reason": "content_filter"}
+        )
+        self.assertFalse(finder._openai_hit_ceiling(response))
+        # dict-shaped details are handled for the length case too
+        self.assertTrue(
+            finder._openai_hit_ceiling(
+                _openai_response(
+                    "p", status="incomplete", incomplete={"reason": "max_output_tokens"}
+                )
+            )
+        )
+
+    def test_finish_truncated_falls_back_to_the_last_sentence(self):
+        repaired = finder._finish_truncated(
+            "Bloomberg Law is the better fit for dockets. For historical mate"
+        )
+        self.assertTrue(repaired.startswith("Bloomberg Law is the better fit"))
+        self.assertNotIn("For historical mate", repaired)
+        self.assertIn("reached its length limit", repaired)
+
+    def test_finish_truncated_handles_nothing_usable(self):
+        self.assertEqual(finder._finish_truncated("## Standalone data"), finder._TRUNCATED_EMPTY)
+        self.assertEqual(finder._finish_truncated(""), finder._TRUNCATED_EMPTY)
 
 
 if __name__ == "__main__":

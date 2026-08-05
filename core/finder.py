@@ -53,6 +53,13 @@ _VERIFIER_INSTRUCTIONS = (
     "(guides.law.stanford.edu), refers to the reference librarians, asks a "
     "clarifying question, or repeats details the user themselves provided. When "
     "in doubt, do NOT flag.\n\n"
+    "ALSO NEVER A VIOLATION: describing the LIBRARY'S OWN COLLECTION — which "
+    "databases or guides the library offers, how many there are, their names, "
+    "their links, how they are grouped, or where the full listing lives "
+    "(law.stanford.edu/robert-crown-law-library/legal-databases/). The "
+    "collection is this tool's own authoritative subject, so listing or counting "
+    "it is the job, not a legal fact. Telling the user a reply was cut short and "
+    "pointing them to the full listing is likewise fine.\n\n"
     "Respond with ONLY a JSON object and nothing else:\n"
     '{"ok": true} if compliant, or '
     '{"ok": false, "violations": ["short reason", ...]} if the DRAFT breaks a rule.'
@@ -143,7 +150,56 @@ MODELS: dict[str, ModelConfig] = {
 }
 _MODEL_BY_ID = {config.id: config for config in MODELS.values()}
 
-MAX_TOKENS = 1024
+# --- Output length budget ---------------------------------------------------
+# MAX_TOKENS budgets VISIBLE reply text. Logged answers run ~300 tokens (p95
+# 531, max 585), so this is several times the real ceiling — deliberately, since
+# an unused budget costs nothing and exceeding it produces a reply that stops
+# mid-URL. Whole-collection requests are answered with a link to the Legal
+# Databases page rather than an enumeration (see the system prompt), so no
+# legitimate answer needs more room than this.
+MAX_TOKENS = 2000
+
+# OpenAI reasoning models spend `max_output_tokens` on reasoning tokens AND
+# visible text, so the request budget must add headroom on top of MAX_TOKENS or
+# reasoning silently eats the answer — observed at 343-826 tokens for a single
+# question. (Anthropic's `max_tokens` bounds visible output only, so that path
+# uses MAX_TOKENS directly.)
+_OPENAI_REASONING_HEADROOM = 2000
+
+# The verifier only ever emits a small JSON verdict, but its reasoning draws on
+# the same budget — leave enough room that a verdict always comes back.
+VERIFIER_MAX_TOKENS = 2000
+
+# The library's own public index pages. Linking these is the correct answer to
+# "just give me the page", so the link guardrail must allow them; without this,
+# the model's own correct referral was flagged as an outside URL.
+_LEGAL_DATABASES_URL = (
+    "https://law.stanford.edu/robert-crown-law-library/legal-databases/"
+)
+_LIBRARY_PAGE_PREFIXES = (
+    _LEGAL_DATABASES_URL,
+    GUIDES.get("_meta", {}).get("guides_index_url")
+    or "https://law.stanford.edu/robert-crown-law-library/research-guides/",
+)
+
+# Appended when a reply still hits the ceiling. Deterministic and honest: the
+# user is told the answer is partial instead of being left to assume a truncated
+# list was complete.
+_TRUNCATION_NOTE = (
+    "\n\n---\n\n*This reply reached its length limit and stops here. The "
+    "complete, always-current listing is on Stanford's "
+    f"[Legal Databases page]({_LEGAL_DATABASES_URL}) — or tell me what kind of "
+    "source you need and I'll point you straight to it.*"
+)
+
+# Used when truncation left nothing usable at all (the ceiling was reached
+# before the first complete line or sentence).
+_TRUNCATED_EMPTY = (
+    "That reply ran past its length limit before anything usable came back. "
+    f"Stanford's [Legal Databases page]({_LEGAL_DATABASES_URL}) carries the "
+    "full listing — or tell me the jurisdiction and kind of source you need, "
+    "and I'll point you to the right database."
+)
 
 
 def _trim_history(history: list[dict]) -> list[dict]:
@@ -227,7 +283,37 @@ def _draft(
         answer, _sent, usage = _get_openai_answer(msgs, use_cache, config)
     else:
         raise ValueError(f"Unknown provider: {config.provider!r}")
+
+    # The provider tells us outright when it stopped at the ceiling (see
+    # usage["truncated"]) — never inferred from token counts or text shape, so a
+    # complete answer is never touched.
+    if usage.get("truncated"):
+        answer = _finish_truncated(answer)
     return answer, usage
+
+
+def _finish_truncated(text: str) -> str:
+    """Repair a reply the provider cut off at the token ceiling.
+
+    A truncated reply ends mid-line — usually mid-URL, which would also trip the
+    link guardrail — so drop the trailing partial line and say plainly that the
+    answer is partial. With no newline to cut at (single-paragraph prose), fall
+    back to the last sentence boundary; ". " requires the trailing space, which a
+    chopped URL never has. Dropping at most one complete line is a deliberate
+    trade: the appended note points at the full listing anyway.
+    """
+    body = text.rstrip()
+
+    cut = body.rfind("\n")
+    if cut > 0:
+        body = body[:cut].rstrip()
+    else:
+        sentence_end = max(body.rfind(". "), body.rfind("! "), body.rfind("? "))
+        body = body[: sentence_end + 1].rstrip() if sentence_end > 0 else ""
+
+    if not body:
+        return _TRUNCATED_EMPTY
+    return body + _TRUNCATION_NOTE
 
 
 def _correction_message(violations: list[str]) -> str:
@@ -256,7 +342,7 @@ def _verify(messages: list[dict], draft: str) -> dict:
     try:
         response = _OPENAI_CLIENT.responses.create(
             model=VERIFIER_MODEL,
-            max_output_tokens=MAX_TOKENS,
+            max_output_tokens=VERIFIER_MAX_TOKENS,
             input=[
                 {"role": "system", "content": _VERIFIER_INSTRUCTIONS},
                 {"role": "user", "content": user_block},
@@ -301,7 +387,7 @@ def _local_guardrail(draft: str) -> dict:
         {
             url.rstrip(".,;:")
             for url in _URL_RE.findall(draft)
-            if url.rstrip(".,;:") not in _ALLOWED_LINKS
+            if not _is_allowed_link(url.rstrip(".,;:"))
         }
     )
     if bad_links:
@@ -312,6 +398,13 @@ def _local_guardrail(draft: str) -> dict:
             ],
         }
     return {"ok": True, "violations": []}
+
+
+def _is_allowed_link(url: str) -> bool:
+    """A link is allowed if it is a catalog/guide link or one of the library's
+    own index pages. The index pages match by prefix so section anchors on the
+    Legal Databases page (e.g. #greenwire) are covered too."""
+    return url in _ALLOWED_LINKS or url.startswith(_LIBRARY_PAGE_PREFIXES)
 
 
 def _get_anthropic_answer(
@@ -358,6 +451,7 @@ def _get_anthropic_answer(
         ),
         "cached_input_tokens": 0,
         "provider": config.provider,
+        "truncated": response.stop_reason == "max_tokens",
     }
     return answer, messages, usage
 
@@ -371,7 +465,7 @@ def _get_openai_answer(
     """
     request: dict = {
         "model": config.id,
-        "max_output_tokens": MAX_TOKENS,
+        "max_output_tokens": MAX_TOKENS + _OPENAI_REASONING_HEADROOM,
         "input": [
             {"role": "system", "content": SYSTEM_PROMPT},
             *messages,
@@ -393,8 +487,28 @@ def _get_openai_answer(
         "cache_read_input_tokens": 0,
         "cached_input_tokens": _cached_input_tokens(usage_obj),
         "provider": config.provider,
+        "truncated": _openai_hit_ceiling(response),
     }
     return getattr(response, "output_text", ""), messages, usage
+
+
+def _openai_hit_ceiling(response: object) -> bool:
+    """True when the Responses API stopped at max_output_tokens.
+
+    Reasoning tokens share that budget, so this fires even when the visible text
+    looks short. `incomplete_details` arrives as an object or a dict depending on
+    the SDK path, and any other incomplete reason (e.g. a content filter) is not
+    a length problem, so it is not treated as one.
+    """
+    if getattr(response, "status", None) != "incomplete":
+        return False
+    details = getattr(response, "incomplete_details", None)
+    reason = (
+        details.get("reason")
+        if isinstance(details, dict)
+        else getattr(details, "reason", None)
+    )
+    return reason == "max_output_tokens"
 
 
 def _usage_value(obj: object, *names: str) -> int:
