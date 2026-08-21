@@ -1,7 +1,7 @@
 {
   "_meta": {
     "source": "Stanford Robert Crown Law Library - Legal Databases (public website)",
-    "standalone_count": 21,
+    "standalone_count": 22,
     "platform_count": 14,
     "ai_tool_count": 4,
     "access_points": 36,
@@ -39,9 +39,13 @@
       "canonical": "ProView",
       "is_rename": false
     },
+    "CEB OnLAW": {
+      "canonical": "CEB OnLawPro",
+      "is_rename": true
+    },
     "OnLAW": {
-      "canonical": "CEB OnLAW",
-      "is_rename": false
+      "canonical": "CEB OnLawPro",
+      "is_rename": true
     },
     "LexisNexis CourtLink": {
       "canonical": "CourtLink",
@@ -49,6 +53,10 @@
     },
     "Rhetoric": {
       "canonical": "CICERO (Rhetoric)",
+      "is_rename": false
+    },
+    "CVN": {
+      "canonical": "Courtroom View Network (CVN)",
       "is_rename": false
     }
   },
@@ -65,14 +73,19 @@
       "_was_under": "Bloomberg"
     },
     {
-      "name": "CEB OnLAW",
-      "description": "Continuing Education of the Bar (CEB) provides electronic access to its California practice guides through OnLAW. CEB focuses on practice areas including business law, criminal law, employment law, estate planning law, family law, litigation, and real property law. It also provides links to California cases and codes, as well as U.S. Supreme Court cases, that are cited in the practice guides. Additionally, CEB provides attorney-drafted forms with clauses accompanied by explanations and directions.",
-      "link": "https://ezproxy.law.stanford.edu/login?url=https://onlaw.ceb.com"
+      "name": "CEB OnLawPro",
+      "description": "Continuing Education of the Bar (CEB) provides electronic access to California practice guides through OnLAW. CEB focuses on practice areas including business law, criminal law, employment law, estate planning law, family law, litigation, and real property law; and links to California and federal cases and codes. Additionally, CEB provides attorney-drafted forms with clauses accompanied by explanations and directions. Access requires personal username and password; contact Reference for more information.",
+      "link": "https://research.ceb.com/"
     },
     {
       "name": "Competition Policy International",
       "description": "Competition Policy International (CPI) provides resources and continuing education for the global antitrust and competition policy community. Users of this resource can access two e-journals published by CPI as well as columns, blogs, and supplemental online content. Competition Policy International is a peer-reviewed academic journal, published biannually, and is one of the leading antitrust journals in the world. The Antitrust Chronicle is an online-only bimonthly magazine that produces papers on topical competitive policy topics. CPI Briefing Rooms are thematic platforms moderated by antitrust experts to share views and spread knowledge within the antitrust community. The community can also help position specific topics such as financial services, online platforms, telecommunications or any other subject among regulators, judges and practitioners. They include academic papers, judicial and administrative rulings, and reports.",
       "link": "https://ezproxy.law.stanford.edu/login?url=https://www.pymnts.com/cpi"
+    },
+    {
+      "name": "Courtroom View Network (CVN)",
+      "description": "Courtroom View Network (CVN) provides trial videos, from gavel-to-gavel, with a focus on tort cases, health law, insurance, and pharmaceutical trials. Watch live trials and past trials; and search for examples of motions, expert testimony and more. Please contact Reference for more information or to request an account.",
+      "link": "https://www.cvn.com/"
     },
     {
       "name": "Embase",
