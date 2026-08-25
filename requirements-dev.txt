@@ -1,0 +1,12 @@
+# Local development + testing only. Never installed into the Lambda image.
+-r requirements.txt
+
+# The Streamlit shell (app.py) kept as an offline model-comparison / eval harness.
+streamlit==1.50.0
+
+# bootstrap loads a .env locally via python-dotenv.
+python-dotenv>=1.0
+
+# FastAPI's TestClient uses httpx (already a transitive dep of the SDKs, pinned
+# here so the test path is explicit).
+httpx>=0.27

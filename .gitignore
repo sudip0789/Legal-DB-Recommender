@@ -8,5 +8,7 @@ __pycache__/
 .streamlit/secrets.toml
 .claude
 CLAUDE_CODE_BUILD_SPEC.md
-docs/MODEL_DESCRIPTION.md
+docs/
 pressure_test_questions.xlsx
+samconfig.toml
+.aws-sam/

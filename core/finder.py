@@ -6,16 +6,36 @@ No Streamlit imports — this module is the portable "brain" of the app.
 from __future__ import annotations
 
 import json
+import logging
 import re
+import time
 from dataclasses import dataclass
 
 import anthropic
+import httpx
 from openai import OpenAI
 
 from .catalog import CATALOG, GUIDES, SYSTEM_PROMPT
 
-_ANTHROPIC_CLIENT = anthropic.Anthropic()  # reads ANTHROPIC_API_KEY from env
-_OPENAI_CLIENT = OpenAI()  # reads OPENAI_API_KEY from environment
+_LOG = logging.getLogger(__name__)
+
+# Explicit client timeouts. Without them a hung provider socket would pin the
+# whole request (and, on Lambda, keep billing) until the platform timeout fires.
+# The connect budget is short; the read budget is generous because reasoning
+# models are slow.
+_CLIENT_TIMEOUT = httpx.Timeout(120.0, connect=10.0)
+
+# The Anthropic client is built only when a key is present. Production runs
+# OpenAI-only (see DEFAULT_MODEL), so no Anthropic key is shipped and this stays
+# None — the SDK is imported but never called. The local eval harness can still
+# set ANTHROPIC_API_KEY to compare models. Tests replace this attribute wholesale
+# via patch.object, so the None default never reaches them.
+try:
+    _ANTHROPIC_CLIENT = anthropic.Anthropic(timeout=_CLIENT_TIMEOUT, max_retries=1)
+except Exception:  # no ANTHROPIC_API_KEY in this environment
+    _ANTHROPIC_CLIENT = None
+
+_OPENAI_CLIENT = OpenAI(timeout=_CLIENT_TIMEOUT, max_retries=1)
 
 DEFAULT_MODEL = "gpt-5.6-sol"
 
@@ -219,7 +239,12 @@ def _trim_history(history: list[dict]) -> list[dict]:
 
 
 def get_answer(
-    history: list[dict], use_cache: bool, model: str = DEFAULT_MODEL
+    history: list[dict],
+    use_cache: bool,
+    model: str = DEFAULT_MODEL,
+    *,
+    on_event=None,
+    deadline: float | None = None,
 ) -> tuple[str, list[dict], dict, str]:
     """
     Send the conversation to the selected provider API and return:
@@ -235,31 +260,56 @@ def get_answer(
     use_cache — when True, uses the provider's prompt caching mechanism.
     model    — one of the IDs in MODELS. Caches are per-model, so a given
                conversation should keep calling with the same value.
+
+    on_event — optional callback(name: str, payload: dict) for progress
+               reporting from inside the draft/verify/regenerate loop. Stages:
+               "drafting", "checking", "revising", "fallback". Defaults to None,
+               in which case behavior is byte-identical to omitting it.
+    deadline — optional time.monotonic() deadline. When passed, the regeneration
+               loop stops early once it is reached, so a slow request fails SAFE
+               (safe fallback), never open. The first draft and its verify always
+               run; only additional regenerations are gated.
     """
     config = _MODEL_BY_ID.get(model)
     if config is None:
         raise ValueError(f"Unknown model: {model!r}")
 
+    def _emit(name: str, **payload) -> None:
+        if on_event is None:
+            return
+        try:
+            on_event(name, payload)
+        except Exception:  # progress reporting must never break an answer
+            pass
+
+    def _expired() -> bool:
+        return deadline is not None and time.monotonic() >= deadline
+
     messages = _trim_history(history)
 
     # Draft, then verify; regenerate with feedback up to MAX_REGENERATIONS times.
+    _emit("drafting", attempt=1)
     answer, usage = _draft(messages, use_cache, config, correction=None)
     initial_draft = answer  # the model's first try, before any guardrail action
     verdict = _local_guardrail(answer)
     if verdict.get("ok", True):
+        _emit("checking", attempt=1)
         verdict = _verify(messages, answer)
     tries = 0
-    while not verdict.get("ok", True) and tries < MAX_REGENERATIONS:
+    while not verdict.get("ok", True) and tries < MAX_REGENERATIONS and not _expired():
         tries += 1
+        _emit("revising", attempt=tries + 1)
         answer, usage = _draft(
             messages, use_cache, config, correction=verdict.get("violations", [])
         )
         verdict = _local_guardrail(answer)
         if verdict.get("ok", True):
+            _emit("checking", attempt=tries + 1)
             verdict = _verify(messages, answer)
 
     if not verdict.get("ok", True):
-        answer = _SAFE_FALLBACK  # exhausted retries — guaranteed-safe floor
+        _emit("fallback")
+        answer = _SAFE_FALLBACK  # exhausted retries (or deadline) — safe floor
 
     return answer, messages, usage, initial_draft
 
@@ -347,9 +397,14 @@ def _verify(messages: list[dict], draft: str) -> dict:
                 {"role": "system", "content": _VERIFIER_INSTRUCTIONS},
                 {"role": "user", "content": user_block},
             ],
+            timeout=40.0,
         )
         return _parse_verdict(getattr(response, "output_text", "") or "")
     except Exception:
+        # Fails open by design so a transient error never blocks an answer — but
+        # log it, because a silent verifier outage means the compliance guardrail
+        # is off with no other signal. Alarm on this in CloudWatch.
+        _LOG.warning("verifier_failed", exc_info=True)
         return {"ok": True, "violations": []}
 
 
@@ -471,8 +526,15 @@ def _get_openai_answer(
             *messages,
         ],
     }
-    if use_cache and config.openai_cache_retention:
-        request["prompt_cache_retention"] = config.openai_cache_retention
+    if use_cache:
+        # A stable cache key keeps the ~22k-token system prefix hitting the
+        # provider cache now that requests arrive from many short-lived Lambda
+        # containers rather than one long-lived process. Bump the version suffix
+        # whenever SYSTEM_PROMPT / catalog / guides change, or you probe a stale
+        # prefix.
+        request["prompt_cache_key"] = "rcll-sysprompt-v1"
+        if config.openai_cache_retention:
+            request["prompt_cache_retention"] = config.openai_cache_retention
 
     response = _OPENAI_CLIENT.responses.create(**request)
     usage_obj = getattr(response, "usage", None)

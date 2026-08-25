@@ -1,0 +1,23 @@
+# Keep the build context small and — critically — keep secrets and local state
+# out of the image and out of the context sent to the Docker daemon.
+.env
+.git
+venv/
+.venv/
+logs/
+docs/
+tests/
+app.py
+legacy/
+*.xlsx
+__pycache__/
+*.pyc
+.claude/
+.streamlit/
+.devcontainer/
+scratchpad/
+README.md
+CLAUDE_CODE_BUILD_SPEC.md
+requirements-dev.txt
+samconfig.toml
+template.yaml

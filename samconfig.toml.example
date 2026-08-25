@@ -1,0 +1,30 @@
+# Template for samconfig.toml, which is gitignored — `sam deploy --guided`
+# rewrites it with the real parameter_overrides, and those embed the Secret ARN
+# (and with it the AWS account id).
+#
+# Copy to samconfig.toml before the first deploy:
+#     cp samconfig.toml.example samconfig.toml
+#
+# Then either run `sam deploy --guided` (it fills in parameter_overrides for
+# you) or uncomment the lines below and fill in the real values.
+version = 0.1
+
+[default.deploy.parameters]
+stack_name = "rcll-ai"
+region = "us-west-2"
+resolve_s3 = true
+s3_prefix = "rcll-ai"
+image_repositories = []
+capabilities = "CAPABILITY_IAM"
+confirm_changeset = true
+# parameter_overrides = "SecretArn=arn:aws:secretsmanager:...:secret:rcll/prod-XXXX AllowedOrigins=https://rcll-finder.vercel.app"
+
+[dev.deploy.parameters]
+stack_name = "rcll-ai-dev"
+region = "us-west-2"
+resolve_s3 = true
+s3_prefix = "rcll-ai-dev"
+image_repositories = []
+capabilities = "CAPABILITY_IAM"
+confirm_changeset = true
+# parameter_overrides = "SecretArn=... AllowedOrigins=https://rcll-finder.vercel.app DailyCap=50"

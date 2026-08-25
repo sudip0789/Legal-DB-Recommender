@@ -1,5 +1,11 @@
-anthropic
-openai
-streamlit
-python-dotenv
-gspread
+# Runtime dependencies for the AWS Lambda image. Streamlit is intentionally
+# absent — it belongs to local testing only (see requirements-dev.txt).
+# Pins match what has been verified locally; lock the rest with a fresh
+# `pip install` + `pip freeze` before the first production deploy.
+fastapi==0.115.6
+uvicorn[standard]==0.32.1
+anthropic==0.105.2
+openai==2.41.1
+gspread==6.2.1
+google-auth==2.50.0
+boto3==1.35.90

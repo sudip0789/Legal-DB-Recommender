@@ -1,0 +1,91 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  RCLL AI-Assisted Search backend — FastAPI on Lambda (container image via the
+  Lambda Web Adapter), a Function URL, and a DynamoDB table for rate-limit state.
+
+Parameters:
+  SecretArn:
+    Type: String
+    Description: >
+      ARN of the Secrets Manager secret holding OPENAI_API_KEY,
+      ANSWER_SIG_SECRET, and (optionally) GOOGLE_SERVICE_ACCOUNT_JSON /
+      GOOGLE_SHEET_ID. No Anthropic key — production is OpenAI-only.
+  AllowedOrigins:
+    Type: String
+    Default: https://rcll-finder.vercel.app
+    Description: Comma-separated exact CORS origins. Never "*".
+  DailyCap:
+    Type: Number
+    Default: 1500
+    Description: Global answers/day cap — interim dollar-proxy until a provider spend cap exists.
+
+Globals:
+  Function:
+    Timeout: 300          # 6-call worst case + headroom; well under the 15-min max
+    MemorySize: 1024
+
+Resources:
+  RateTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - AttributeName: pk
+          AttributeType: S
+      KeySchema:
+        - AttributeName: pk
+          KeyType: HASH
+      TimeToLiveSpecification:
+        AttributeName: expires_at
+        Enabled: true
+      PointInTimeRecoverySpecification:
+        PointInTimeRecoveryEnabled: true
+
+  ChatFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      PackageType: Image
+      # Apple Silicon builds arm64 natively. If you build on an x86 machine or
+      # CI runner, change this to x86_64 so the image arch matches.
+      Architectures: [arm64]
+      ReservedConcurrentExecutions: 10   # hard blast-radius + throughput ceiling
+      Environment:
+        Variables:
+          RCLL_SECRET_ARN: !Ref SecretArn
+          RATE_TABLE: !Ref RateTable
+          ALLOWED_ORIGINS: !Ref AllowedOrigins
+          DAILY_CAP: !Ref DailyCap
+          MODEL_ID: gpt-5.6-sol
+          BUDGET_S: '210'
+      FunctionUrlConfig:
+        AuthType: NONE          # required so the CORS preflight reaches the app
+        InvokeMode: BUFFERED    # v1 single-JSON response; RESPONSE_STREAM later
+        # No Cors block here on purpose — FastAPI owns CORS. Two sources would
+        # emit duplicate Access-Control-Allow-Origin headers and break the browser.
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref RateTable
+        - Statement:
+            - Effect: Allow
+              Action: secretsmanager:GetSecretValue
+              Resource: !Ref SecretArn
+    Metadata:
+      Dockerfile: Dockerfile
+      DockerContext: .
+      DockerTag: latest
+
+  # Explicit log group so retention is bounded (Lambda would otherwise create
+  # one that never expires — the eventual biggest line item).
+  ChatLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub /aws/lambda/${ChatFunction}
+      RetentionInDays: 30
+
+Outputs:
+  FunctionUrl:
+    Description: Public HTTPS endpoint — set this as AI_API_URL in the frontend.
+    Value: !GetAtt ChatFunctionUrl.FunctionUrl
+  RateTableName:
+    Value: !Ref RateTable
